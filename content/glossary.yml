@@ -612,7 +612,7 @@ sparse-attention:
 importance-sampling:
   term: importance sampling
   aliases: [self-normalized importance sampling]
-  short: Estimate an average by sampling from a convenient distribution u instead of the true one w, and weighting each sample by w/u to undo the difference.
+  short: Estimate an average by sampling from a convenient distribution u instead of the true one w, and weighting each sample by w/u. The self-normalized variant divides by the sum of these weights and can be biased at finite sample sizes.
   page: magicpig
   group: Sampling
 

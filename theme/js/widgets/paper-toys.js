@@ -81,7 +81,7 @@ CE.widget('pig-topk', el => {
   sm.addEventListener('input', reset);
   q('#tk-1').addEventListener('click', () => { last = sample(); draws.push(last.est); draw(); });
   q('#tk-200').addEventListener('click', () => { for (let j = 0; j < 200; j++) { last = sample(); draws.push(last.est); } draw(); });
-  draw();
+  redraws.push(draw); draw();
 });
 
 /* ---------- 2: sampling from the wrong distribution, and fixing it ---------- */
@@ -111,10 +111,10 @@ CE.widget('pig-importance', el => {
     P.done();
     const sd = a => Math.sqrt(a.reduce((s, d) => s + (d - mean(a)) ** 2, 0) / a.length);
     const ess = 1 / T.reduce((s, t, i) => s + t.w * t.w / u[i], 0);
-    q('.readout').innerHTML = `The plain average of the draws lands at ${chip(mean(naive).toFixed(3), C.res)} against a true ${chip(o.toFixed(3), C.ink)}: it answers the question for the guess, not for attention. ` +
-      `Re-weighted, it lands at ${chip(mean(fixed).toFixed(3), C.dec)}, give or take ${chip(sd(fixed).toFixed(3), C.dec)}. <span class="dim">With this guess, each draw is worth ${pct(ess)} of a draw from the true weights. A bad guess costs samples, not correctness.</span>`;
+    q('.readout').innerHTML = `The plain average of the draws lands at ${chip(mean(naive).toFixed(3), C.res)} against a true ${chip(o.toFixed(3), C.ink)}: ${al === 1 ? "the guess now equals the attention distribution." : "without correction it estimates the mean under the guess."} ` +
+      `Re-weighted, it lands at ${chip(mean(fixed).toFixed(3), C.dec)}, give or take ${chip(sd(fixed).toFixed(3), C.dec)}. <span class="dim">Weight-overlap diagnostic: ${pct(ess)} (100% when u = w); this is not an exact error ratio. The correction can still have finite-sample bias; more draws reduce it.</span>`;
   }
-  sa.addEventListener('input', draw); sb.addEventListener('input', draw); draw();
+  sa.addEventListener('input', draw); sb.addEventListener('input', draw); redraws.push(draw); draw();
 });
 
 /* ---------- 3: why hashing needs centring ---------- */
@@ -157,7 +157,7 @@ CE.widget('pig-hash', el => {
     q('#ph-out').innerHTML = `<dt>keys in the query’s bucket</dt><dd style="color:var(--k-q)">${nIn} of ${NS}</dd><dt>their share of the keys’ weight</dt><dd>${pct(mIn / mk_)}</dd><dt>the heaviest key</dt><dd>${inb[best] ? 'caught' : 'missed'}</dd><dt>attention weights</dt><dd>${t > 0.5 ? 'unchanged by centring' : 'as computed'}</dd>`;
     q('#ph-note').innerHTML = t < 0.5
       ? 'The keys all point one way and the query points another. A random line either misses the cone or slices it once, so the keys share one or two buckets, and almost never the query’s (shaded). Dot size is attention weight; ringed keys share the query’s bucket.'
-      : 'Subtracting the mean key moves the cone onto the origin. Now the lines cut through the keys, and the ones that land in the query’s wedge are the ones pointing its way: the heavy ones. Every score shifted by the same q·mean, so the softmax did not change at all.';
+      : 'Subtracting the mean key moves the cone onto the origin. Now the lines cut through the keys, and the ones that land in the query’s wedge point its way; large key norms can still upset this match with attention weight. Every score shifted by the same q·mean, so the softmax did not change at all.';
   }
   function go(to) {
     target = to; if (anim) cancelAnimationFrame(anim);
@@ -173,18 +173,18 @@ CE.widget('pig-hash', el => {
 
 /* ---------- 4: the memory bill, per key ---------- */
 CE.widget('pig-memory', el => {
-  const q = mk(el, `<div class="chart-title">What one key costs, per layer and per head</div><div class="chart-sub">Llama-3.1-8B: head dimension 128, bfloat16 · totals for 96k tokens × 32 layers × 8 KV heads</div><div class="membars" style="padding:1.1rem 1.2rem;display:grid;gap:.75rem"></div><div class="controls"><label>bits per table K <input type="range" id="pm-k" min="6" max="12" value="10"></label><output id="pm-kv"></output><label>tables L <input type="range" id="pm-l" min="25" max="400" step="5" value="150"></label><output id="pm-lv"></output></div><div class="readout"></div>`);
+  const q = mk(el, `<div class="chart-title">What one key–value pair costs, per layer and KV head</div><div class="chart-sub">Llama-3.1-8B: head dimension 128, bfloat16 · totals for 96k tokens × 32 layers × 8 KV heads</div><div class="membars" style="padding:1.1rem 1.2rem;display:grid;gap:.75rem"></div><div class="controls"><label>bits per table K <input type="range" id="pm-k" min="6" max="12" value="10"><output id="pm-kv"></output></label><label>tables L <input type="range" id="pm-l" min="25" max="400" step="5" value="150"><output id="pm-lv"></output></label></div><div class="readout"></div>`);
   const sk = q('#pm-k'), sl = q('#pm-l'), host = q('.membars');
   function draw() {
     const K = +sk.value, Lt = +sl.value; q('#pm-kv').textContent = 'K = ' + K; q('#pm-lv').textContent = 'L = ' + Lt;
-    const rows = [['the key and value themselves', 512, 'k-dec'], [`${Lt} table entries × 4 bytes`, 4 * Lt, 'k-code'], [`the ${(K * Lt).toLocaleString('en-US')} hash bits`, K * Lt / 8, 'k-bits']];
+    const rows = [['the key and value themselves', 512, 'k-dec'], [`${Lt} table entries × 4 bytes`, 4 * Lt, 'k-code'], [`optional packed codes: ${(K * Lt).toLocaleString('en-US')} bits`, K * Lt / 8, 'k-bits']];
     const mx = Math.max(...rows.map(r => r[1]));
-    host.innerHTML = rows.map(([t, b, c]) => `<div style="display:grid;grid-template-columns:minmax(8rem,15rem) 1fr;gap:.8rem;align-items:center;font-size:.86rem"><span>${t}</span><span style="display:flex;align-items:center;gap:.5rem"><span style="height:1.3rem;border-radius:4px;background:var(--${c});width:${(b / mx * 85).toFixed(1)}%;min-width:2px;transition:width .25s"></span><b style="font-family:var(--f-mono);font-size:.8rem">${Math.round(b)} B</b></span></div>`).join('');
+    host.innerHTML = rows.map(([t, b, c]) => `<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:.8rem;align-items:center;font-size:.86rem"><span>${t}</span><span style="display:flex;align-items:center;gap:.5rem;min-width:0"><span style="height:1.3rem;border-radius:4px;background:var(--${c});width:${(b / mx * 85).toFixed(1)}%;min-width:2px;transition:width .25s"></span><b style="font-family:var(--f-mono);font-size:.8rem;white-space:nowrap">${Math.round(b)} B</b></span></div>`).join('');
     const gib = x => (x * 98304 * 32 * 8 / 2 ** 30).toFixed(1) + ' GiB', pk = Math.pow(0.5, K);
     const frac = 1 - Math.pow(1 - pk, Lt) - Lt * pk * Math.pow(1 - pk, Lt - 1);
-    q('.readout').innerHTML = `KV cache ${chip(gib(512), C.dec)} · hash tables ${chip(gib(4 * Lt), C.code)}: the index costs ${chip((4 * Lt / 512).toFixed(2) + '×', C.code)} the data it indexes. <span class="dim">For keys spread evenly over the buckets, ${pct(frac, frac < 0.01 ? 2 : 1)} of them would be read per query (the paper’s Eq. 21). K sets the cost; L buys the recall back. The paper runs (8, 75), (9, 120) and (10, 150).</span>`;
+    q('.readout').innerHTML = `KV cache ${chip(gib(512), C.dec)} · hash tables ${chip(gib(4 * Lt), C.code)}: the index costs ${chip((4 * Lt / 512).toFixed(2) + '×', C.code)} the data it indexes. <span class="dim">For keys spread evenly over the buckets, ${pct(frac, frac < 0.01 ? 2 : 1)} of them would be read per query (the paper’s Eq. 21). L sets table-entry memory; K changes bucket occupancy. This estimate excludes exact tokens and is not the measured sampling budget. The paper runs (8, 75), (9, 120) and (10, 150).</span>`;
   }
-  sk.addEventListener('input', draw); sl.addEventListener('input', draw); draw();
+  sk.addEventListener('input', draw); sl.addEventListener('input', draw); redraws.push(draw); draw();
 });
 
 })();

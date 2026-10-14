@@ -5,11 +5,11 @@ goal: Fast attention usually reads only the highest-scoring keys. MagicPIG argue
 ---
 
 ::: lede
-You need the average height of 100,000 people, and you may measure only 2,000 of them. Which 2,000? Not the tallest, obviously: you would get the height of a basketball team. You would pick at random. Yet almost every trick for making an LLM's attention fast does the first thing. This paper noticed, and its fix leads somewhere unexpected: to [[SimHash]], the random-hyperplane hash from Part 5 that we had written off as too dumb for real data.
+You need the average height of 100,000 people, and you may measure only 2,000 of them. Which 2,000? Not the tallest, obviously: you would get the height of a basketball team. You would pick at random. Keeping only the highest attention weights makes a related mistake: it can lose the combined contribution of many small weights. MagicPIG explores this failure, and its fix leads somewhere unexpected: to [[SimHash]], the random-hyperplane hash from Part 5 that we had written off as too dumb for real data.
 :::
 
 ::: aside The paper
-Chen, Sadhukhan, Ye, Zhou, Zhang, Nolte, Tian, **Douze**, **Bottou**, Jia, Chen. *MagicPIG: LSH Sampling for Efficient LLM Generation.* [arXiv:2410.16179](https://arxiv.org/abs/2410.16179), ICLR 2025 spotlight. We read v4 (December 2024). CMU and Meta; Matthijs Douze co-wrote FAISS. [Code](https://github.com/Infini-AI-Lab/MagicPIG).
+Chen, Sadhukhan, Ye, Zhou, Zhang, Nolte, Tian, Douze, Bottou, Jia, Chen. *MagicPIG: LSH Sampling for Efficient LLM Generation.* [arXiv:2410.16179v4](https://arxiv.org/abs/2410.16179v4), ICLR 2025 spotlight. We read v4 (December 2024). CMU and Meta; Matthijs Douze co-wrote FAISS. [Code](https://github.com/Infini-AI-Lab/MagicPIG).
 :::
 
 ::: cards four
@@ -18,22 +18,22 @@ Chen, Sadhukhan, Ye, Zhou, Zhang, Nolte, Tian, **Douze**, **Bottou**, Jia, Chen.
 - **The usual fix**{.k-book}
   Find the few keys with the highest scores. Ignore the rest.
 - **The objection**{.k-q}
-  That answer is biased. A random sample is not.
+  Keeping only the largest weights can miss the crowd. Sampling can account for it.
 - **The trick**{.k-code}
   A hash that knows how likely it was to pick each key.
 :::
 
-## 12 GiB for every word {#cost}
+## 12 GiB for every new token {#cost}
 
-When an LLM writes a word, each layer's [query]{.k-q} is compared with the [key]{.k-book} of every earlier token, and the [values]{.k-dec} are averaged with the resulting weights. That is the soft nearest-neighbour lookup of [[@rhymes]], with the [[KV cache]] as the database.
+An LLM generates one **token** at a time: a word, a piece of a word, or punctuation. In each layer, attention heads produce a [query]{.k-q}, a vector describing what to look for. They compare it with the cached [keys]{.k-book} of earlier tokens, turn those scores into weights with a softmax, and average the corresponding [values]{.k-dec}. Keys decide how much to listen; values carry what is said. That is the soft nearest-neighbour lookup of [[@rhymes]], with the [[KV cache]] as the database.
 
-Do the [napkin arithmetic](@napkin-math) for Llama-3.1-8B holding a 96k-token document: 32 layers × 8 key–value heads × 128 numbers × 2 (key and value) × 2 bytes is 128 KiB per token. That is ==12 GiB, read in full, for every single word it writes==. At a GPU's 1 TB/s, that is 12 ms of pure reading per token, before any arithmetic.
+Do the [napkin arithmetic](@napkin-math) for Llama-3.1-8B holding a 96k-token document (here 96 × 1,024 = 98,304 tokens): 32 layers × 8 key–value heads × 128 numbers × 2 (key and value) × 2 bytes is 128 KiB per token. That is ==12 GiB, read in full, for every new token it writes==. At a hypothetical sustained 1 TB/s, those bytes alone take about 13 ms to read. This is a bandwidth estimate for a single sequence, not a measured decoding time.
 
 ::: aside Why reading, not computing
-Generating one token at a time does very little arithmetic per byte fetched, so the speed limit is memory bandwidth. Halve the bytes you read and you nearly halve the time.
+During single-sequence decoding, each cached key and value is used for relatively little arithmetic. Reading the cache can dominate long-context attention. Reducing those reads helps, though model weights, hashing, transfers and other layers still take time.
 :::
 
-The obvious idea, if you have read Part 2: most of the softmax weight lands on a handful of keys. So find those with an index, read only them, skip the rest. This is [[TopK attention]], and it is what most fast-attention methods approximate.
+The obvious idea, if you have read Part 2: when most of the softmax weight lands on a handful of keys, find those with an index and skip the rest. This is [[TopK attention]], and it is what most fast-attention methods approximate.
 
 MagicPIG's first move is to ask whether TopK is even the right target.
 
@@ -45,14 +45,14 @@ A search engine returns a list, and you judge it by recall. Attention returns a 
 
 ## Picking the tallest {#tallest}
 
-Here is a picture that makes the difference visible. Pretend each value is a single number, and put each token on a number line at its value. Draw it as a stick whose height is its attention weight. The attention output is then the **balance point** of all the sticks:
+Here is a picture that makes the difference visible. Pretend each value is a single number, and put each token on a number line at its value. Draw it as a stick whose height is its attention weight. The attention output is then the **balance point** of all the sticks. In the formula, $i$ runs over cached tokens, $d$ is the number of coordinates in a head, and $q\cdot k_i$ is its query–key dot product. Softmax exponentiates these scaled scores and divides by their sum, so the weights $w_i$ are positive and add to 1:
 
 $$ \kdec{o} \;=\; \sum_i w_i\, \kdec{v_i}, \qquad w_i = \operatorname{softmax}_i\!\big(\kq{q}\cdot\kbook{k_i}/\sqrt d\big) $$
 
-TopK keeps the tallest sticks and finds *their* balance point. Sampling picks sticks at random, each with probability equal to its height, and averages where they stand.
+TopK keeps the tallest sticks and finds *their* balance point. Sampling draws tokens independently **with replacement**, each with probability equal to its weight, and averages their values. A token drawn twice counts twice, even though its value only needs to be loaded once. The height analogy motivates sampling; the stick picture shows the actual weighted problem.
 
 ::: widget pig-topk | TopK against sampling
-**Pick a scenario, then draw samples** Red sticks are the ones TopK reads. The red arrow is how far its answer misses. Each purple dot is one sampling estimate that reads the same number of tokens.
+**Pick a scenario, then draw samples** Red sticks are the ones TopK reads. The red arrow is how far its answer misses. Each purple dot uses as many draws as TopK reads tokens; repeated draws need only one value load.
 :::
 
 ::: try Three situations
@@ -87,7 +87,7 @@ Try the **sink** scenario before moving on. One token takes half the weight and 
 
 ## The catch: you cannot sample without looking {#catch}
 
-There is an obvious problem. To sample keys in proportion to their weights you need the weights, and the weights need every score $\kq{q}\cdot\kbook{k_i}$. Computing every score is half the cost of attention. The paper calls this the *oracle*, and it saves almost nothing.
+There is an obvious problem. To sample keys in proportion to their weights you need the weights, and the weights need every score $\kq{q}\cdot\kbook{k_i}$. Computing every score still requires reading all the keys. It saves the value reads, but leaves much of attention's work intact. The paper calls this the *oracle*, and it saves almost nothing.
 
 So we need to sample from something *cheap* that is only roughly right, and then repair the "roughly". Statisticians have done this for seventy years. It is [[importance sampling]]: draw from a convenient guess $u$, and weigh each draw by how much the guess under- or over-sampled it.
 
@@ -98,16 +98,18 @@ $$ \hat o \;=\; \frac{\sum_{\text{draws } i} \frac{w_i}{u_i}\, \kdec{v_i}}{\sum_
 :::
 
 ::: try Break the guess
-1. Slide the guess all the way to **uniform**. The plain average (red) now answers a different question entirely: the unweighted mean of all tokens. The re-weighted answer (green) is still centred on the truth; it is just noisier.
+1. Slide the guess all the way to **uniform**. The plain average (red) now answers a different question entirely: the unweighted mean of all tokens. The correction pulls the green estimates toward the truth, but with few draws their average can still miss it.
 2. Slide to **exact**. The two rows coincide: that is the oracle.
-3. In between, a better guess means a tighter green cloud. A bad guess costs samples, never correctness.
+3. Raise **draws per estimate** and watch the green cloud tighten. Matching the true weights helps in this toy; a poor guess can cause both large variance and finite-sample bias.
 :::
 
 ::: aside The softmax hides a gift
 We never know $w_i$ itself, because its denominator sums over every key. But the same unknown denominator appears on the top and bottom of $\hat o$ and cancels. All we need is $e^{\kq{q}\cdot\kbook{k_i}/\sqrt d}$ for the keys we actually drew.
 :::
 
-Look at what the correction needs: for every key we drew, ==the exact probability $u_i$ that we would draw it==. Not an estimate, not a rank: the probability. That rules out almost every index in Part 2. An HNSW graph or an IVF list either returns a key or it doesn't, and it cannot tell you the odds.
+There is a price for cancelling that unknown denominator. This is **self-normalized** importance sampling: a ratio of two random sums. Unlike the direct sampling average above, it is generally **biased at finite sample sizes**. With independent draws and a positive proposal probability wherever $w_i>0$, it converges to the right answer as the number of draws grows.
+
+Look at what the correction needs: for every key we drew, we must know its sampling probability $u_i$. It must also be positive for every key that contributes. Ordinary deterministic HNSW or IVF retrieval leaves some keys with zero chance, so it cannot supply this correction for the omitted keys. A randomized index could in principle work; SimHash makes the probabilities particularly easy to compute.
 
 So the question becomes: **is there a cheap way to pick keys that knows its own odds?** Before answering, look at what the keys are like.
 
@@ -120,15 +122,15 @@ Part 1 taught us to look at the cloud before choosing a tool ([[@shape-of-the-cl
 :::
 
 ::: measured Three findings that held up
-- **Keys crowd into a narrow cone.** Average cosine with the mean key: **0.67**. Random directions would give 0. This is [[anisotropy]], the same lean as sentence embeddings.
+- **Keys crowd into a narrow cone.** Average cosine with the mean key: **0.67**. Unrelated random directions would average near 0. This is [[anisotropy]], the same lean as sentence embeddings.
 - **Queries point away from it.** Their cosine with the mean key averages **−0.24**. For an index, the questions come from a different place than the data.
 - **The first token's key is a constant.** Start the text with 32 different tokens: the key at position 0 barely moves (cosine **0.99**). Its value is short (**0.35×** an average value's length), and it takes **24%** of all attention.
 :::
 
-That first-token key is the [[attention sink]]. The softmax *must* hand out a total weight of 1, even when nothing in the context is relevant. The model learns to park the leftover weight on the first token, whose short value adds little to the output. It is a built-in "none of the above", and it is the sink scenario from the toy above.
+That first-token key is the [[attention sink]]. The softmax *must* hand out a total weight of 1, even when nothing in the context is relevant. One interpretation is that training gives the model a place to park weight on a token whose short value changes the output relatively little. It acts like "none of the above", and it is the sink scenario from the toy above.
 
 ::: aside A hub by design
-In [[@shape-of-the-cloud]], [[hubness|hubs]] were passages close to everybody, an accident of the geometry. The sink is a hub on purpose. Some newer architectures make it explicit, with a learned per-head "nothing" slot in the softmax.
+In [[@shape-of-the-cloud]], [[hubness|hubs]] were passages close to everybody, an accident of the geometry. Here the hub appears to serve a useful role. Some newer architectures make it explicit, with a learned per-head "nothing" slot in the softmax.
 :::
 
 Now think of hashing these keys with random hyperplanes. It goes badly.
@@ -145,31 +147,33 @@ Here is the picture in two dimensions, with keys shaped like the real ones.
 
 With raw keys, nothing works. The keys sit in one narrow cone and the query points elsewhere, so the query's bucket is nearly empty. The paper's ablation found that **fewer than 0.1%** of keys ever collided with the query, and retrieval accuracy fell to almost zero.
 
-Now press **centred keys**. The cone slides onto the origin, the lines slice through it, and the keys that land in the query's wedge are the ones pointing its way: the heavy ones. And attention does not notice, because every score shifts by the same amount:
+Now press **centred keys**. The cone slides onto the origin, the lines slice through it, and the keys that land in the query's wedge point its way. This can favour high scores, although key length matters too. And attention does not notice, because every score shifts by the same amount:
 
 $$ \kq{q}\cdot(\kbook{k_i} - \mu) \;=\; \kq{q}\cdot\kbook{k_i} \;-\; \underbrace{\kq{q}\cdot\mu}_{\text{the same for every key}} $$
 
 and the softmax ignores anything added equally to every score. This is the same one-line fix that every compression method in Part 3 applies first. Here it is free, and it decides whether the method works at all.
 
 ::: aside Only one side can move
-You may shift the keys but not the query: subtracting something from $q$ would change each score by a different amount. Part 4 met the same asymmetry in [[ADC]]: the stored side can be transformed at will, and the query is taken as it comes.
+You may shift the keys but not the query: subtracting something from $q$ would change each score by a different amount. Part 4 met the same asymmetry in [[ADC]]: the stored and query sides can be treated differently. Here it is specifically a common translation of the keys that preserves attention; arbitrary transformations would not.
 :::
+
+The toy drew repeated independent samples from a distribution whose probabilities sum to 1. MagicPIG instead selects a **set** $S$: each key is included once or left out. Now $u_i$ means the probability that key $i$ is included, not the probability of a single draw; the $u_i$ need not sum to 1. The same ratio uses one $\tilde w_i/u_i$ contribution per selected key. Keys' inclusion events may be correlated because they share hyperplanes.
 
 Here is the payoff. Because SimHash collides with probability $1 - \theta/\pi$ per bit, the chance that a key is picked is ==a formula of its angle to the query, and nothing else==. MagicPIG builds $L$ tables of $K$ bits and samples a key if it shares the query's bucket in **at least two** of them:
 
 $$ \kcode{u_i} \;=\; 1 - (1-p_i^{K})^{L} - L\,p_i^{K}(1-p_i^{K})^{L-1}, \qquad p_i = 1 - \frac{\theta(\kq{q},\ \kbook{k_i} - \mu)}{\pi}. $$
 
-The first two terms are the S-curve from [[@lsh-amplification]]: none of the $L$ tables collide, versus at least one. The third removes keys that collide in exactly one, which makes the curve steeper. Here it is over one real query's 16,384 keys:
+Assume the bits and tables use independent random hyperplanes. Then $p_i^K$ is a collision in one table, and the formula subtracts the probabilities of zero hits and exactly one hit from 1. The first two terms are the S-curve from [[@lsh-amplification]]: none of the $L$ tables collide, versus at least one. The third removes keys that collide in exactly one, which makes the curve steeper. Here it is over one real query's 16,384 keys:
 
 ::: widget pig-scurve | The sampling curve on real keys
-**Set K and L, and compare one table with two** The curve is the probability that a key is sampled, given its cosine with the query. Grey: how many of this query's centred keys sit at each cosine. Green: where its attention weight sits; the spike is the sink.
+**Set K and L, and compare requiring one collision with requiring two** The curve is the probability that a key is sampled, given its cosine with the query. Grey: how many of this query's centred keys sit at each cosine. Green: where its attention weight sits; the spike is the sink.
 :::
 
 ::: key Dumb turns out to be the point
-Part 5 called LSH's obliviousness its weakness: it ignores the data, so learned indexes beat it. But obliviousness is exactly what makes $u_i$ computable from one arccos. A smarter index finds better keys, but it cannot say how likely it was to find them, and without that you cannot correct the estimate.
+Part 5 called LSH's obliviousness its weakness: it ignores the data, so learned indexes beat it. But obliviousness is exactly what makes $u_i$ computable from one arccos. A learned index may find better neighbours, but its ordinary retrieval rule does not supply positive, known inclusion probabilities for the whole population. SimHash supplies the ingredient this estimator needs.
 :::
 
-The whole estimator, for one query, is five lines:
+The core estimator, for one query, is five lines. $S$ excludes the exact set (sink and recent tokens), so no token is counted twice. `s_exact` contains their ordinary attention scores. This is a mathematical sketch; production code also needs stable probability arithmetic and handling of zero-length vectors:
 
 ```python MagicPIG's estimate for one query | after Algorithm 1
 s = (K_S @ q) / np.sqrt(d)                     # scores of the sampled keys only
@@ -180,7 +184,7 @@ o_hat = w @ np.concatenate([V_S, V_exact])
 ```
 
 ::: aside −log u is a surprisal
-In Part 6's language, $-\log_2 u_i$ is the number of bits of surprise in "key $i$ was sampled". The estimator adds exactly that surprise to the key's score: a rarely sampled key counts for more when it does turn up.
+In Part 6's language, $-\log_2 u_i$ is the number of bits of surprise in "key $i$ was sampled". The code uses natural logs, so its score correction is in nats; multiply the bit surprisal by $\ln 2$ to get the same quantity. A rarely sampled key gets a larger correction: it counts for more when it does turn up.
 :::
 
 ## The bill {#bill}
@@ -191,20 +195,26 @@ LSH has a well-known price, and [[@lsh-amplification]] warned about it: every ta
 **Slide K and L** Bytes per key, per layer, per head. The paper's settings put $L$ between 75 and 150.
 :::
 
-At the paper's default (10, 150), the tables are ==bigger than the KV cache they index==: 600 bytes of pointers to find a 512-byte key and value. The paper's own Table 8 lists 14 GB of tables for Llama-3.1-8B at 96k tokens. That is fine for its purpose: the tables live in plentiful CPU memory, and only the model stays on the GPU. Finding the candidates is cheap in bytes, about $L \cdot n / 2^K$ = 14,400 pointers per query, 0.2% of the key bytes, so the paper's "zero search cost" is fair. But it is a move, not a saving.
+At the paper's default (10, 150), the tables are ==bigger than the KV cache they index==: 600 bytes of 32-bit token indices beside a 512-byte key–value pair. Across 98,304 tokens, 32 layers and 8 KV heads, that is **14.1 GiB of table entries plus 12 GiB of KV data**, before bucket metadata and other overhead. Table 8 reports roughly 14 GB of tables. The figure also shows packed hash bits as a separate, optional storage cost; they are not another mandatory copy of the tables.
+
+Finding candidates is cheap *in bytes*, under the simplifying assumption of evenly filled buckets. A query scans about $L n/2^K = 14{,}400$ entries, or 57,600 bytes of indices. That is **0.23% of the 25,165,824 key bytes** for one KV head in one layer. It excludes reading the selected keys and values, computing hashes, and counting duplicate hits. Small byte traffic does not mean zero elapsed time.
+
+The system's aim is to save **GPU memory**. Most cached keys and values, the tables, and sampled attention computation move to the CPU; the GPU runs the model, computes hashes, and handles the exact attention subset. This lets larger contexts or batches fit in VRAM, at the cost of more total memory and a dependency on CPU bandwidth.
 
 ## Did it work? We checked {#measured}
 
-We re-implemented Algorithm 1 from the paper's description and ran it on every head of every layer of Qwen2.5-1.5B, at the last 64 positions of the same 16k-token text: 21,504 attention rows. We compared it with three *oracles* that may see every score: TopK, sampling from the true weights, and a hybrid that reads the top half of its budget exactly and samples the rest.
+We re-implemented the sampling estimator in Algorithm 1 from the paper's description and ran it on every head of every layer of Qwen2.5-1.5B, at the last 64 positions of the same 16k-token text: 21,504 attention rows. We compared it with three *oracles* that may see every score: TopK, sampling from the true weights, and a hybrid that reads the top half of its budget exactly and samples the rest.
 
 ::: widget pig-estimators | Estimators at a budget
 **Turn centring and the exact sink and local tokens on and off** Lines: the oracles at budgets from 0.1% to 20% of the keys. Diamonds: MagicPIG at the paper's three settings. Square: the sink and the 64 most recent tokens alone.
 :::
 
+Error here means $\lVert \hat o-o\rVert_2/\lVert o\rVert_2$, averaged over attention rows. Budgets count **distinct keys read**, including the exact subset; the oracle sampling curves count repeated draws only once. This checks attention outputs on one fixed input, not generation quality or system speed. We used one hash seed and did not reproduce the CPU–GPU serving system.
+
 ::: measured What we found
 - **The budgets reproduce.** (8, 75), (9, 120) and (10, 150) read **5.1%, 3.9% and 2.1%** of the keys; the paper says 5%, 4% and 2%.
 - **Sampling beats TopK, as an oracle.** At a 2% budget TopK misses by **12.1%**, sampling by about **6%**, the hybrid by **4.5%**.
-- **MagicPIG lands between them.** **16.4%** at 2.1% of the keys, **12.5%** at 5.1%: worse than oracle TopK at the same budget, but without ever computing the scores TopK needs. It wins in 6 of the 28 layers, the ones where attention is most spread out.
+- **MagicPIG trails the oracles on average.** **16.4%** at 2.1% of the keys, **12.5%** at 5.1%: worse than oracle TopK at the same budget, but without ever computing the scores TopK needs. It wins in 6 of the 28 layers, the ones where attention is most spread out.
 - **Centring is essential.** Without it: **36–50%**.
 - **The exact tokens do a lot of the work.** Without the sink and recent tokens kept exact: **48–64%**.
 :::
@@ -222,11 +232,11 @@ The core idea is right, and it is a good one. These are the questions we would p
 :::
 
 ::: qa Why choose between TopK and sampling?
-**You shouldn't.** The textbook answer is to stratify: read the heavy keys exactly and sample the rest. Our hybrid does that and beats both at every budget. MagicPIG is secretly such a hybrid already, since the sink and recent tokens are kept exact. vAttention ([arXiv:2510.05688](https://arxiv.org/abs/2510.05688), ICLR 2026) later made "top-k plus sampling" the method itself.
+**You shouldn't.** The textbook answer is to stratify: read the heavy keys exactly and sample the rest. Our oracle hybrid does that and has lower average error across the measured budget range. Finding the heavy keys cheaply is still the unsolved part of this baseline. MagicPIG is secretly such a hybrid already, since the sink and recent tokens are kept exact. vAttention ([arXiv:2510.05688](https://arxiv.org/abs/2510.05688), ICLR 2026) later made "top-k plus sampling" the method itself.
 :::
 
 ::: qa What do the "theoretical guarantees" guarantee?
-**Less than it sounds.** The estimate is unbiased *on average over random hyperplanes*. But the hyperplanes are drawn once and shared by every head, layer and token, so in any one run the choice of keys is fixed. And $u_i$ follows the angle while $w_i$ follows the dot product, so a long key at a modest angle gets a big weight and a small chance: high variance. The paper describes the standard dot-product-to-angle trick for [[MIPS]] (its Eq. 8), then reports that it does not use it.
+**The oracle guarantee does not transfer unchanged.** The numerator and denominator sums are individually unbiased over random hyperplanes when inclusion probabilities are positive. Their ratio generally is not. The independent-draw convergence result in Section 4.1 also does not by itself prove the same result for correlated LSH inclusions. With a fixed hash seed, the selected set for a fixed query and cache is deterministic; later queries can still select different sets. And $u_i$ follows the angle while $w_i$ follows the dot product, so a long key at a modest angle gets a big weight and a small chance: high variance. The paper describes the standard dot-product-to-angle trick for [[MIPS]] (its Eq. 8), then reports that it does not use it.
 :::
 
 ::: qa Who deserves the credit?
@@ -238,7 +248,7 @@ The core idea is right, and it is a good one. These are the questions we would p
 :::
 
 ::: qa How fast, against what?
-**A simulation, against the wrong rival.** The RTX 4090 result is simulated on another GPU with a memory cap. Most of the throughput gain comes from bigger batches once the cache leaves the GPU. Compressing the cache to 2–4 bits does the same, and that comparison (Parts 3 and 4 of this book) is missing.
+**Hardware details and baselines matter.** The RTX 4090 result is simulated on another GPU with a memory cap. Most of the throughput gain comes from bigger batches once the cache leaves the GPU. Compressing the cache to 2–4 bits also reduces VRAM use, with different accuracy and bandwidth tradeoffs. A comparison with that alternative (Parts 3 and 4 of this book) would help establish when offloading plus sampling wins.
 :::
 
 ::: aside What about RoPE?
@@ -251,16 +261,16 @@ The hashed keys have been rotated by [[RoPE]]. How much of the cone, and of the 
 - **"Close enough" depends on who is asking**{.k-q}
   Recall@k is right when a person reads a list. When a model averages the results, the error of the average is what counts, and a random sample can beat the true top k. A RAG system that summarizes twenty passages is closer to the second case.
 - **Randomness you can account for**{.k-code}
-  A clever index with unknown odds is only as good as its recall. A dumb one with *known* odds supports an unbiased estimate. RaBitQ's unbiased distances in [[@bits-as-sketches]] make the same trade.
+  A clever index with unknown odds is only as good as its recall. A random one with *known*, positive odds supports an inclusion-corrected estimate; normalizing it still introduces finite-sample bias. RaBitQ's unbiased distances in [[@bits-as-sketches]] make the same trade.
 - **KV vectors are embeddings, quirks included**{.k-vec}
   A lopsided cone, a stable mean direction, a giant hub: the key cloud inside an LLM has the shape problems of a sentence-embedding cloud, and the same first fix.
 - **The bits are in the wrong place**{.k-bits}
-  MagicPIG spends 1,500 hash bits and 600 bytes of pointers per key to *choose* keys, then reads them at full precision. The rest of this book suggests the reverse: small codes to choose with, as in [[ADC]], and full precision only where the weight is.
+  MagicPIG computes 1,500 hash bits and stores 600 bytes of table entries per key to *choose* keys, then reads the selected keys and values at bfloat16 precision. The rest of this book suggests the reverse: small codes to choose with, as in [[ADC]], and full precision only where the weight is.
 :::
 
 ::: check
-- Attention's output is an average. TopK misses it by (skipped weight) × (how different the skipped values are), every time; sampling is unbiased.
-- Sampling from a cheap guess works if you know each draw's probability, and divide by it.
+- Attention's output is an average. TopK misses it by (skipped weight) × (how different the skipped values are), every time; direct sampling from the true weights is unbiased.
+- Sampling from a cheap guess needs known, positive probabilities and inverse-probability weighting. The normalized ratio can still be biased at finite sample sizes.
 - Keys sit in a cone, queries point away, and the first token is a constant sink. Centring the keys is free for the softmax and essential for hashing.
 - SimHash gives each key a sampling probability from its angle alone, which is what makes the correction possible.
 - On a real model the idea mostly holds up; the exact sink and recent tokens carry much of the weight, and the hash tables outweigh the cache.
