@@ -495,3 +495,13 @@ figcaption .fname + p > strong:first-child { margin-left: 0; }
   .br-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: .1rem; }
   .br-chip { flex: none; }
 }
+
+/* kvdiff figures use the same tokens and controls, with native-width phone plots. */
+.kv-figure .chartwrap > svg.chart { min-width: 0; }
+.kv-figure .chartwrap { overflow: hidden; }
+.kv-figure .controls label { flex-wrap: wrap; }
+.kv-figure .controls select { max-width: 100%; }
+.kv-figure .clegend { flex-wrap: wrap; }
+.kv-matrix { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; padding: 1rem; }
+.kv-matrix i { aspect-ratio: 1.8; background: var(--bg-3); border: 1px solid var(--rule); border-radius: 2px; }
+.kv-matrix i.active { background: var(--k-vec); border-color: var(--k-vec); }

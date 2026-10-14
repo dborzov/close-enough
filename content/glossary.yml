@@ -628,3 +628,12 @@ rope:
   short: Rotary position embeddings. Each pair of coordinates of a query or key is rotated by an angle proportional to the token's position, so the dot product depends on relative position.
   page: magicpig
   group: Systems
+
+# -------------------------------------------------------------- Our experiments
+effective-dimension:
+  term: effective dimension
+  aliases: [participation ratio, PR]
+  short: The number of equally energetic directions with the same variance concentration, (sum of variances)² / sum of squared variances. It is not a safe truncation rank.
+  page: kvdiff-v-spectrum
+  group: Quantization
+  color: enc

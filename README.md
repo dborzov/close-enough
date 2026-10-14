@@ -1,7 +1,7 @@
 # Close Enough
 
 A visual primer on embeddings, vector search, and the mathematics of compressing vectors.
-46 short pages, about 40 interactive figures, every number measured on real embeddings.
+49 short pages, interactive figures throughout, with measurements on real embeddings and cached attention values.
 
 **Read it:** https://borzov.ca/close-enough/
 
@@ -51,3 +51,21 @@ Then rebuild: the charts and the prose pick up the new numbers.
 
 The field-guide chapters, the codebook chapters and several playgrounds grew out of conversations with Claude;
 the measurements were re-run from scratch on transformer embeddings for this book.
+
+## kvdiff experiment overviews
+
+Part 9 collects our own project overviews. The first imports the measured V spectra,
+transfer curves and checks from kvdiff experiment 03. It is a recorded pilot study,
+not a newly executed model run or a demonstrated codec. The published site is self-contained.
+
+After re-running the notebook and rebuilding the overview in the kvdiff checkout:
+
+```sh
+uv run experiments/import_kvdiff.py /attic/d/kvdiff/overviews/03_v_spectrum.html
+uv run build.py
+```
+
+The importer writes `data/lab/kvdiff-v-spectrum.json` with exact plotted values and
+source provenance. The page is `content/kvdiff-v-spectrum.md`; its live toys and
+measured charts are in `theme/js/widgets/kvdiff.js`. Headline text and the per-thread
+table retain some rounded source results; review them when importing a new snapshot.

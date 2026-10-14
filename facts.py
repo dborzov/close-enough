@@ -1,11 +1,14 @@
 """Named numbers for the prose. content/*.md refers to them as {{name}} or {{name|.2f}}.
 
-Everything here is derived from data/results.json, so re-running the experiments updates the text.
+Numbers come from data/results.json and imported data/lab snapshots, so rebuilding updates the text.
 A missing name is a build error, which keeps the prose from drifting away from the measurements.
 """
 from __future__ import annotations
 
 import math
+import json
+import statistics
+from pathlib import Path
 
 
 def facts(R: dict) -> dict:
@@ -222,4 +225,26 @@ def facts(R: dict) -> dict:
         f["rp_raw_deg"] = deg(f["rp_raw_mean"])
         f["walk_drop"] = f["walk_lag1"] - f["walk_lag2"]
         f["rp_hub_ratio"] = f["rp_hub_max_raw"] / 10
+    # ---- kvdiff: imported plotted values, not a new experiment run
+    kv_path = Path(__file__).resolve().parent / "data/lab/kvdiff-v-spectrum.json"
+    if kv_path.exists():
+        kv = json.loads(kv_path.read_text())
+        for k in (8, 32, 64):
+            f[f"kv_cv{k}"] = statistics.mean(r[5] for r in kv["transfer"] if r[3] == k and r[4] == 0)
+        f["kv_tail32"] = 1 - f["kv_cv32"]
+        f["kv_mean23"] = next(r["mean_share"] for r in kv["layer_profile"] if r["layer"] == 23)
+        for basis, label in (("own (first half)", "own"), ("other threads", "other")):
+            f[f"kv_104_{label}"] = next(r["captured"] for r in kv["temporal"] if r["case_no"] == 104 and r["basis"] == basis)
+        rates = []
+        for spectrum in kv["spectra"].values():
+            target = .05 * sum(spectrum)
+            lo, hi = 0., max(spectrum)
+            for _ in range(80):
+                theta = (lo + hi) / 2
+                if sum(min(v, theta) for v in spectrum) > target:
+                    hi = theta
+                else:
+                    lo = theta
+            rates.append(.5 * sum(math.log2(v / theta) for v in spectrum if v > theta))
+        f["kv_rate5"] = statistics.median(rates)
     return f

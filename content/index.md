@@ -8,7 +8,7 @@ goal: A visual primer on embeddings, vector search, and the mathematics of compr
 <div class="kicker"><b class="k-vec">embeddings</b> · <b class="k-q">vector search</b> · <b class="k-book">quantization</b> · <b class="k-bits">lossless codecs</b></div>
 <h1>Close <span class="g">Enough</span></h1>
 <p class="dek">A visual primer on how machines turn meaning into points in space, how they find the nearest points among billions, and how few bits a point really needs.</p>
-<div class="byline"><span>45 short pages</span><span>about 40 interactive figures</span><span>every number measured on real embeddings</span><span>numpy sketches throughout</span></div>
+<div class="byline"><span>49 short pages</span><span>interactive figures throughout</span><span>real embeddings and cached attention values</span><span>numpy sketches throughout</span></div>
 <div id="continue"></div>
 </div>
 
@@ -58,8 +58,10 @@ You know some linear algebra and a little Python, and you have met entropy and H
 
 ## Where the numbers come from
 
-::: measured One dataset, used everywhere
-All measurements use **{{n_windows|,}} passages** from 18 public-domain books, embedded with the open model `all-MiniLM-L6-v2` into **{{d}} dimensions**. Codebooks and probability models are always fitted on some books ({{n_train|,}} passages) and scored on *other* books ({{n_db|,}} passages), with queries from yet other books. The scripts are in the repository; one command regenerates every chart and every number in the text.
+::: measured The primer’s running dataset
+The primer’s running measurements use **{{n_windows|,}} passages** from 18 public-domain books, embedded with the open model `all-MiniLM-L6-v2` into **{{d}} dimensions**. Codebooks and probability models are always fitted on some books ({{n_train|,}} passages) and scored on *other* books ({{n_db|,}} passages), with queries from yet other books. The scripts are in the repository; one command regenerates every chart and every number in the text.
 :::
+
+The [paper club](@paper-club) adds model-specific checks. [Our experiments](@experiments) collects results from kvdiff, starting with five GSM8K sequences from Qwen 3.5 2B. Those pages name their own data and evaluation splits.
 
 This book grew out of three long conversations: a field guide to embeddings and search, a deep dive on additive codebooks, and a note on where PCA fits. It keeps their examples and adds two chapters they only hinted at: hashing, and exact compression.

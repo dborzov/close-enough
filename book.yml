@@ -56,3 +56,9 @@ parts:
     color: k-q
     blurb: One paper per chapter, read against everything above. What it tells us about vectors, what we re-measured ourselves, and what looks off.
     pages: [paper-club, magicpig]
+
+  - n: 9
+    title: Our experiments
+    color: k-vec
+    blurb: Results from our own kvdiff experiments, explored with live toys and measured figures. What the cache's geometry suggests, what transfers, and what still needs a codec.
+    pages: [experiments, kvdiff-v-spectrum]
