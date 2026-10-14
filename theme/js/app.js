@@ -59,9 +59,11 @@
       return `<li class="${cur ? 'here' : ''}"><a href="${s}.html" data-page="${s}"><i class="tickbox"></i><span class="n">${p.num}</span><span>${esc(p.title)}</span></a>${sub}</li>`;
     }).join('');
     const more = document.createElement('div'); more.className = 'rail-more';
-    more.innerHTML = '<button id="rail-toc">☰ All contents <kbd>t</kbd></button><a href="glossary.html">Aa Glossary <kbd>g</kbd></a>';
+    const nl = BOOK.items.filter(i => i[0] === 'experiment' && i[1] === slug).length;
+    more.innerHTML = '<button id="rail-toc">☰ All contents <kbd>t</kbd></button><a href="browse.html">◫ Browse by kind <kbd>b</kbd></a><a href="glossary.html">Aa Glossary <kbd>g</kbd></a>' +
+      (nl ? `<a href="browse.html#experiments">⚗ ${nl} experiment${nl > 1 ? 's' : ''} here · all ${BOOK.items.filter(i => i[0] === 'experiment').length}</a>` : '');
     railOl.after(more); $('#rail-toc').addEventListener('click', () => openToc());
-  } else if (railOl) { $('#rail .rail-part').innerHTML = '<span class="pn">Reference</span>' + esc(document.title.split(' · ')[0]); const more = document.createElement('div'); more.className = 'rail-more'; more.innerHTML = '<button id="rail-toc">☰ All contents <kbd>t</kbd></button><a href="index.html">← Cover</a>'; railOl.after(more); $('#rail-toc').addEventListener('click', () => openToc()); }
+  } else if (railOl) { $('#rail .rail-part').innerHTML = '<span class="pn">Reference</span>' + esc(document.title.split(' · ')[0]); const more = document.createElement('div'); more.className = 'rail-more'; more.innerHTML = '<button id="rail-toc">☰ All contents <kbd>t</kbd></button><a href="browse.html">◫ Browse by kind <kbd>b</kbd></a><a href="glossary.html">Aa Glossary <kbd>g</kbd></a><a href="index.html">← Cover</a>'; railOl.after(more); $('#rail-toc').addEventListener('click', () => openToc()); }
 
   /* ---------- scroll: reading bar, current section, auto "read" at the end, remember position ---------- */
   const readbar = $('#readbar i'), crumbSec = $('#crumb-sec');
@@ -107,8 +109,10 @@
     let h = '<div class="toc-hits">';
     if (pages.length) h += '<h4>Pages</h4>' + pages.map(s => `<a href="${s}.html"><span class="w">${BOOK.pages[s].num || 'page'}</span><span>${esc(BOOK.pages[s].title)}<small>${esc(BOOK.pages[s].goal.slice(0, 90))}</small></span></a>`).join('');
     if (secs.length) h += '<h4>Sections</h4>' + secs.slice(0, 14).map(([s, x]) => `<a href="${s}.html#${x.id}"><span class="w">${BOOK.pages[s].num}</span><span>${esc(x.title)}<small>in ${esc(BOOK.pages[s].title)}</small></span></a>`).join('');
+    const its = BOOK.items.filter(i => hit(i[3]) || hit(i[4])).concat(BOOK.items.filter(i => !hit(i[3]) && !hit(i[4]) && hit(i[5]))).slice(0, 16);   // title matches first, then text
+    if (its.length) h += '<h4>Experiments, figures and boxes</h4>' + its.map(i => `<a href="${i[1]}.html#${i[2]}"><span class="w">${esc(i[0] === 'experiment' ? i[4] : BOOK.kinds[i[0]])}</span><span>${esc(i[3])}<small>in ${BOOK.pages[i[1]].num} ${esc(BOOK.pages[i[1]].title)}</small></span></a>`).join('');
     if (terms.length) h += '<h4>Glossary</h4>' + terms.map(([id, t]) => `<a href="glossary.html#${id}"><span class="w">term</span><span>${esc(t.term)}<small>${t.short.replace(/<[^>]+>/g, '').slice(0, 90)}</small></span></a>`).join('');
-    if (!pages.length && !secs.length && !terms.length) h += '<h4>Nothing matches. Try a shorter word.</h4>';
+    if (!pages.length && !secs.length && !terms.length && !its.length) h += '<h4>Nothing matches. Try a shorter word.</h4>';
     tocBody.innerHTML = h + '</div>';
   }
   let lastFocus = null;
@@ -136,6 +140,7 @@
     if (e.key === 't' || e.key === 'c') { e.preventDefault(); toc.hidden ? openToc() : closeToc(); }
     else if (e.key === '/') { e.preventDefault(); openToc(true); }
     else if (e.key === 'g') location.href = 'glossary.html';
+    else if (e.key === 'b') location.href = 'browse.html';
     else if (!toc.hidden) return;
     else if (e.key === 'ArrowRight' && pager.next) location.href = pager.next.href;
     else if (e.key === 'ArrowLeft' && pager.prev) location.href = pager.prev.href;
@@ -200,6 +205,35 @@
     if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) setTimeout(() => t.scrollIntoView({ block: 'center' }), 50); }
   }
 
+  /* ---------- browse page: filter by words, kind and part ---------- */
+  const brf = $('#br-filter');
+  if (brf) {
+    const items = $$('.br-item'), chips = $$('.br-chip'), part = $('#br-part'), count = $('#br-count');
+    const on = new Set(chips.map(c => c.dataset.kind));
+    const run = () => {
+      const q = brf.value.trim().toLowerCase(); let n = 0;
+      items.forEach(it => { const k = it.closest('.br-kind').dataset.kind; const ok = on.has(k) && (!part.value || it.dataset.part === part.value) && (!q || it.textContent.toLowerCase().includes(q)); it.hidden = !ok; if (ok) n++; });
+      $$('.br-kind').forEach(sec => { sec.hidden = !$$('.br-item:not([hidden])', sec).length; });
+      count.textContent = `${n} of ${items.length}`;
+    };
+    chips.forEach(c => c.addEventListener('click', e => {
+      const k = c.dataset.kind;
+      if (e.altKey || e.metaKey || on.size === chips.length) { on.clear(); on.add(k); }   // first click (or alt-click) shows only this kind
+      else if (on.has(k) && on.size > 1) on.delete(k); else on.add(k);
+      if (!on.size) chips.forEach(x => on.add(x.dataset.kind));
+      chips.forEach(x => x.setAttribute('aria-pressed', on.has(x.dataset.kind)));
+      run();
+    }));
+    brf.addEventListener('input', run); part.addEventListener('change', run);
+    const fromHash = () => {   // browse.html#experiments shows only that kind
+      const h = location.hash.slice(1), only = chips.find(c => c.dataset.kind + 's' === h); if (!only) return;
+      on.clear(); on.add(only.dataset.kind); chips.forEach(x => x.setAttribute('aria-pressed', on.has(x.dataset.kind))); run();
+      const sec = document.getElementById(h); if (sec) sec.scrollIntoView();
+    };
+    addEventListener('hashchange', fromHash);
+    run(); fromHash();
+  }
+
   /* ---------- cover page: part cards with progress, "continue" button ---------- */
   const grid = $('#partgrid');
   function paintCover() {
@@ -211,7 +245,7 @@
     const next = S.last && !isRead(S.last) ? S.last : BOOK.order.find(s => s !== 'index' && !isRead(s));
     const started = nRead() > 0 || S.last;
     const first = BOOK.order.find(s => s !== 'index');
-    c.innerHTML = `<div class="cta"><a class="primary" href="${(started && next ? next : first)}.html">${started && next ? 'Continue: ' + BOOK.pages[next].num + ' ' + esc(BOOK.pages[next].title) + ' →' : 'Start reading →'}</a><a href="#parts">Browse the parts</a><a href="glossary.html">Glossary</a></div>`;
+    c.innerHTML = `<div class="cta"><a class="primary" href="${(started && next ? next : first)}.html">${started && next ? 'Continue: ' + BOOK.pages[next].num + ' ' + esc(BOOK.pages[next].title) + ' →' : 'Start reading →'}</a><a href="#parts">Browse the parts</a><a href="browse.html#experiments">Start with the experiments</a><a href="glossary.html">Glossary</a></div>`;
   }
   document.addEventListener('ce:progress', paintCover);
 

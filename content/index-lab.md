@@ -4,7 +4,7 @@ kicker: Stage 2 · Try all four
 goal: The same 1,600 points, four indexes, computed live in your browser. Turn the knobs and watch the trade every real system tunes.
 ---
 
-::: widget ann-lab
+::: widget ann-lab | Four indexes on one map
 **Tap the map to move the query** Switch between brute force, LSH, IVF and a graph. In every mode the yellow dots are what the index returned, the rings are the true ten nearest, and blue marks what the index had to examine.
 :::
 

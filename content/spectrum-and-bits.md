@@ -18,7 +18,7 @@ $$ \kbits{R} \;=\; \sum_{i\,:\,\lambda_i > \theta} \tfrac12 \log_2\frac{\lambda_
 
 Big bars get many bits, small bars a few, tiny bars none. After coding, every direction that got bits has the *same* leftover error $\theta$, and every direction that did not is lost entirely.
 
-::: widget waterfill
+::: widget waterfill | Reverse water-filling
 **Drag the budget** This is the real spectrum of the embeddings. The lime part of each bar is what gets described; the faded red part is the error that remains. At 8 bytes, how many directions get anything at all?
 :::
 
@@ -61,7 +61,7 @@ Two reasons, and both are visible in measurements.
   Embeddings form clusters: topics, genres, languages. PCA only sees the ellipse around the whole cloud. A [[codebook]] can put its points right on the clusters.
 :::
 
-::: widget rate-sweep
+::: widget rate-sweep | Error against bits, measured
 **Measured, from 4 bytes to 384 bytes** Each dot is a full train-and-evaluate run on held-out books. The dashed line is the Gaussian bound from water-filling. Switch to recall to see what the error means for search.
 :::
 

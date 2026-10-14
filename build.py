@@ -131,6 +131,7 @@ BOXES = {
     "note": "Note", "key": "Key idea", "warn": "Watch out", "practice": "In practice", "check": "Checkpoint",
     "try": "Try it", "recap": "Recap", "measured": "Measured",
 }
+LABS: dict[str, dict] = {}  # experiment name -> id, page, title, and the html of its first look
 MATH: list[dict] = []  # collected, rendered in one node call
 
 
@@ -143,7 +144,7 @@ def make_md(page: dict) -> MarkdownIt:
     md = MarkdownIt("commonmark", {"html": True, "typographer": True, "linkify": False}).enable(["table", "strikethrough", "replacements", "smartquotes"])
     md.use(attrs_plugin, spans=True).use(attrs_block_plugin).use(deflist_plugin)
     md.use(dollarmath_plugin, allow_space=True, allow_digits=True, double_inline=True)
-    state = dict(fig=0, sec=0, widgets=[], sections=[])
+    state = dict(fig=0, sec=0, lab=0, labs=[], labstack=[], widgets=[], sections=[])
     page["_state"] = state
 
     def box(kind):
@@ -184,7 +185,11 @@ def make_md(page: dict) -> MarkdownIt:
 
     def fig_open(kind):
         def fn(a):
-            name, _, rest = a.partition(" ")
+            a, _, title = a.partition("|")
+            title = title.strip()
+            if not title:
+                raise BuildError(f"{page['slug']}: figure '{a.strip()}' needs a name: write '::: {kind} {a.strip()} | A short name'")
+            name, _, rest = a.strip().partition(" ")
             state["fig"] += 1
             num = f"{page['num']}.{state['fig']}" if page["num"] else str(state["fig"])
             cls = "fig wide" if "narrow" not in rest.split() else "fig"
@@ -196,9 +201,59 @@ def make_md(page: dict) -> MarkdownIt:
                 if not f.exists():
                     raise BuildError(f"{page['slug']}: missing figure figures/{name}.svg")
                 body = f'<div class="stage diawrap">{f.read_text()}</div>'
-            return f'<figure class="{cls}" id="fig-{name}">{body}<figcaption><span class="fn">Fig {num}</span>'
+            return f'<figure class="{cls}" id="fig-{name}" data-title="{html.escape(title)}">{body}<figcaption><span class="fn">Fig {num}</span><span class="fname">{md.renderInline(title)}</span> '
         return fn
     simple("widget", fig_open("widget"), "</figcaption></figure>\n")
+
+    # experiments: ":::: lab <widget> [look]" around ::: question / recipe / key / look / reading blocks
+    def lab_open(a):
+        a, _, title = a.partition("|")
+        name, _, look = a.strip().partition(" ")
+        look = look.strip() or "first"
+        state["widgets"].append(name)
+        first = name not in LABS
+        if first:
+            state["lab"] += 1
+            LABS[name] = dict(id=f"{page['num']}{chr(64 + state['lab'])}" if page["num"] else chr(64 + state["lab"]),
+                              slug=page["slug"], title=title.strip() or name)
+        elif look == "first" or title.strip():
+            raise BuildError(f"{page['slug']}: experiment '{name}' shown again: write ':::: lab {name} again' without a title")
+        lab = LABS[name]
+        state["labs"].append(name)
+        state["labstack"].append((name, look))
+        tag = "first look" if first else ("second look" if look == "again" else "another look")
+        head = (f'<header class="lab-head"><span class="lab-id">Experiment {lab["id"]}</span>'
+                f'<span class="lab-title">{html.escape(lab["title"])}</span><span class="lab-tag">{html.escape(tag)}</span></header>')
+        ref = "" if first else f"<!--LABREF:{name}-->"
+        return (f'<figure class="fig wide lab{" again" if not first else ""}" id="lab-{name}{"" if first else "-" + look}" '
+                f'data-lab="{name}" data-look="{look}">{head}{ref}<div class="lab-body">')
+
+    def lab_render(self, tokens, idx, _options, env):
+        t = tokens[idx]
+        if t.nesting == 1:
+            return lab_open(t.info.strip()[len("lab"):].strip())
+        name, look = state["labstack"].pop()
+        return (f'<div class="stage widget lab-stage" data-widget="{name}" data-look="{look}">'
+                '<noscript>This experiment is interactive and needs JavaScript.</noscript></div></div></figure>\n')
+    md.use(container_plugin, "lab", render=lab_render)
+
+    LAB_PARTS = dict(question=("lab-q", ""), recipe=("lab-recipe", "What was done"), legend=("lab-key", "How to read it"),
+                     look=("lab-look", "Before you read on, look for"), reading=("lab-reading", "Read it again"))
+
+    def lab_part(kind):
+        cls, default = LAB_PARTS[kind]
+
+        def render(self, tokens, idx, _options, env):
+            t = tokens[idx]
+            if t.nesting == -1:
+                return "</div>\n"
+            title = t.info.strip()[len(kind):].strip() or default
+            h = f'<div class="lab-h">{md.renderInline(title)}</div>' if title else ""
+            return f'<div class="{cls}">{h}\n'
+        return render
+
+    for kind in LAB_PARTS:
+        md.use(container_plugin, kind, render=lab_part(kind))
     simple("svg", fig_open("svg"), "</figcaption></figure>\n")
 
     # fenced blocks: code (pygments) and the "score" strip
@@ -334,6 +389,155 @@ def autoterms(state, page):
         tok.children = out
 
 
+# ----------------------------------------------------------------------------- experiments
+GLYPHS = {  # little pictures for the "how to read it" key of an experiment
+    "dot": '<circle cx="9" cy="9" r="4.2" class="g-fill"/>',
+    "ring": '<circle cx="9" cy="9" r="5.5" class="g-line" stroke-width="2"/>',
+    "hollow": '<circle cx="9" cy="9" r="4.2" class="g-line" stroke-width="1.6"/>',
+    "dots": '<circle cx="4" cy="12" r="2.2" class="g-fill"/><circle cx="9" cy="6" r="2.2" class="g-fill"/><circle cx="14" cy="10" r="2.2" class="g-fill"/>',
+    "line": '<path d="M2 13 L7 8 L11 11 L16 4" class="g-line" stroke-width="1.6"/>',
+    "thick": '<path d="M2 13 C6 4, 11 15, 16 5" class="g-line" stroke-width="3.2"/>',
+    "dash": '<path d="M2 9 H16" class="g-line" stroke-width="1.6" stroke-dasharray="3 2.5"/>',
+    "bar": '<rect x="3" y="7" width="4" height="9" rx="1" class="g-fill"/><rect x="10" y="3" width="4" height="13" rx="1" class="g-fill"/>',
+    "cell": '<rect x="2" y="2" width="6" height="6" class="g-fill" opacity=".35"/><rect x="10" y="2" width="6" height="6" class="g-fill"/><rect x="2" y="10" width="6" height="6" class="g-fill"/><rect x="10" y="10" width="6" height="6" class="g-fill" opacity=".35"/>',
+    "x": '<path d="M2 14 H16 M13 11 L16 14 L13 17" class="g-line" stroke-width="1.6"/>',
+    "y": '<path d="M4 16 V2 M1 5 L4 2 L7 5" class="g-line" stroke-width="1.6"/>',
+    "colour": '<circle cx="5" cy="6" r="3" fill="var(--s1)"/><circle cx="13" cy="6" r="3" fill="var(--s2)"/><circle cx="9" cy="13" r="3" fill="var(--s3)"/>',
+    "arrow": '<path d="M2 14 L14 4 M8 4 H14 V10" class="g-line" stroke-width="1.6"/>',
+    "ramp": '<rect x="1" y="5" width="16" height="8" rx="2" fill="url(#g-ramp)"/>',
+    "hover": '<path d="M5 2 L5 14 L8 11 L10.5 16 L12.5 15 L10 10 L14 10 Z" class="g-fill"/>',
+}
+GLYPH_DEFS = ('<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="g-ramp">'
+              '<stop offset="0" stop-color="var(--bg-3)"/><stop offset=".45" stop-color="var(--k-q)"/><stop offset=".75" stop-color="var(--k-code)"/>'
+              '<stop offset="1" stop-color="var(--k-vec)"/></linearGradient></defs></svg>')
+
+
+def lab_post(p: dict) -> None:
+    """Key glyphs (a list item that starts with !name), reading steps ({view}), and remember each first look."""
+    body = p["body"]
+
+    def glyph(m):
+        g = GLYPHS.get(m.group(2))
+        if g is None:
+            raise BuildError(f"{p['slug']}: unknown key glyph !{m.group(2)} (known: {', '.join(GLYPHS)})")
+        return f'<li class="lk">{m.group(1) or ""}<svg class="glyph" viewBox="0 0 18 18" aria-hidden="true">{g}</svg>'
+
+    body = re.sub(r'<li>(\s*<p>)?!([a-z]+)\s*', glyph, body)
+    body = re.sub(r'<li>(\s*<p>)?\{([\w-]+)\}\s*', lambda m: f'<li data-view="{m.group(2)}" tabindex="0" role="button">{m.group(1) or ""}', body)
+    if 'class="lk"' in body:
+        body = GLYPH_DEFS + body
+    for name in dict.fromkeys(p["_state"]["labs"]):
+        lab = LABS[name]
+        if lab["slug"] != p["slug"] or "parts" in lab:
+            continue
+        m = re.search(rf'<figure class="fig wide lab" id="lab-{re.escape(name)}".*?<div class="lab-body">(.*?)<div class="stage widget lab-stage"', body, re.S)
+        if m:   # question, recipe and legend: everything before the "look for" prompts
+            lab["parts"] = m.group(1).split('<div class="lab-look">')[0]
+    p["body"] = body
+
+
+def lab_refs(p: dict) -> None:
+    """A second look carries the question, recipe and key of the first, folded."""
+    def ref(m):
+        lab = LABS[m.group(1)]
+        where = "above" if lab["slug"] == p["slug"] else f'in <a class="xr" href="{lab["slug"]}.html#lab-{m.group(1)}" data-page="{lab["slug"]}">{BY_SLUG[lab["slug"]]["num"]} {html.escape(BY_SLUG[lab["slug"]]["title"])}</a>'
+        return (f'<details class="lab-ref"><summary>Same experiment as {where}: show what was done and how to read it</summary>'
+                f'<div class="lab-ref-body">{lab.get("parts", "")}</div></details>')
+    p["body"] = re.sub(r"<!--LABREF:([\w-]+)-->", ref, p["body"])
+
+
+# ----------------------------------------------------------------------------- browse: everything that is not prose
+KIND_ONE = dict(experiment="experiment", figure="figure", diagram="diagram", key="key idea", measured="measured", warn="pitfall",
+                practice="in practice", code="code", check="checkpoint")
+KIND_ONE["try"] = "exercise"
+KINDS = [  # kind, plural label, one-line description for the browse page
+    ("experiment", "Experiments", "Numerical experiments on real embeddings. Each leads a section: shown first, explained, shown again."),
+    ("figure", "Interactive figures", "Charts and playgrounds you can hover, drag and adjust."),
+    ("diagram", "Diagrams", "Static pictures of a mechanism."),
+    ("key", "Key ideas", "The one idea a section hangs on."),
+    ("measured", "Measured results", "Numbers measured on this book's data, with what they mean."),
+    ("warn", "Pitfalls", "Ways this goes wrong in practice."),
+    ("practice", "In practice", "What real systems do."),
+    ("try", "Exercises", "Things to try yourself."),
+    ("code", "Code sketches", "Short numpy versions of the ideas."),
+    ("check", "Checkpoints", "The end-of-page summary of each page: the fastest way to review."),
+]
+ITEMS: list[dict] = []
+
+
+MATH_HTML: list[str] = []  # KaTeX output, filled once the whole book is rendered
+
+
+def plain(h: str, n: int = 0) -> str:
+    """Text of an html fragment; formulas stay as \x00MATHn\x00 placeholders (see with_math)."""
+    t = h
+    t = html.unescape(re.sub(r"<[^>]+>", " ", t))
+    t = re.sub(r"\s+", " ", t).strip()
+    t = re.sub(r" ([.,;:!?)’”])", r"\1", re.sub(r"([(“‘]) ", r"\1", t))   # tags removed next to punctuation leave a space
+    return t if not n or len(t) <= n else t[:n].rsplit(" ", 1)[0] + " …"
+
+
+def with_math(t: str, rendered: bool = True) -> str:
+    return re.sub(r"\x00MATH(\d+)\x00", lambda m: MATH_HTML[int(m.group(1))] if rendered else "…", t)
+
+
+def collect_items(p: dict) -> None:
+    """Give every non-prose block an anchor and remember it for the browse page and the search."""
+    body, n = p["body"], dict()
+    heads = [(m.start(), m.group(1), plain(m.group(2))) for m in re.finditer(r'<h2 id="([\w-]+)">(?:<a class="hnum"[^>]*>[^<]*</a>)?(.*?)</h2>', body)]
+
+    def section(pos):
+        h = [x for x in heads if x[0] < pos]
+        return (h[-1][1], h[-1][2]) if h else (None, None)
+
+    def add(kind, pos, anchor, title, text, **extra):
+        sid, stitle = section(pos)
+        ITEMS.append(dict(kind=kind, slug=p["slug"], num=p["num"], page=p["title"], part=p["part"], anchor=anchor,
+                          title=title, text=text, sec=stitle, **extra))
+
+    def box(m):
+        kind = m.group(1)
+        if kind not in {k for k, *_ in KINDS}:
+            return m.group(0)
+        n[kind] = n.get(kind, 0) + 1
+        return f'<aside class="box box-{kind}" id="{kind}-{n[kind]}">'
+    body = re.sub(r'<aside class="box box-([\w-]+)">', box, body)
+    for m in re.finditer(r'<aside class="box box-([\w-]+)" id="([\w-]+)"><span class="label">(.*?)</span>(.*?)</aside>', body, re.S):
+        kind, aid, label, inner = m.groups()
+        label = plain(label)
+        title = label if label != BOXES.get(kind) else ""
+        if kind == "check":
+            title = f"After {p['num']} {p['title']}".strip()
+        add(kind, m.start(), aid, title, plain(inner, 260))
+    k = 0
+
+    def codehead(m):
+        nonlocal k
+        k += 1
+        return f'<div class="codehead" id="code-{k}">'
+    body = re.sub(r'<div class="codehead">', codehead, body)
+    for m in re.finditer(r'<div class="codehead" id="([\w-]+)"><span>(.*?)</span><span>(.*?)</span></div><pre class="code"><code>(.*?)</code>', body, re.S):
+        add("code", m.start(), m.group(1), plain(m.group(2)), plain(m.group(4), 160), lang=plain(m.group(3)))
+    for m in re.finditer(r'<figure class="fig[^"]*" id="(fig-[\w-]+)" data-title="([^"]*)"><div class="stage (widget|diawrap)".*?<figcaption><span class="fn">(.*?)</span><span class="fname">.*?</span>(.*?)</figcaption>', body, re.S):
+        cap = m.group(5)
+        lead = re.match(r"\s*<p>\s*<strong>(.*?)</strong>", cap)   # captions open with a bold lead: an instruction or a subtitle
+        add("figure" if m.group(3) == "widget" else "diagram", m.start(), m.group(1), html.unescape(m.group(2)),
+            plain(cap[lead.end():] if lead else cap, 220), fig=plain(m.group(4)), hint=plain(lead.group(1)) if lead else "")
+    for m in re.finditer(r'<figure class="fig wide lab(?P<again> again)?" id="(?P<id>[\w-]+)" data-lab="(?P<name>[\w-]+)" data-look="(?P<look>[\w-]+)">', body):
+        lab = LABS[m.group("name")]
+        if not m.group("again"):
+            q = re.search(r'<div class="lab-q">(.*?)</div>', body[m.end():], re.S)
+            steps = len(re.findall(r"<li\b", lab.get("parts", "").split('class="lab-recipe"')[-1].split('class="lab-key"')[0]))
+            add("experiment", m.start(), m.group("id"), lab["title"], plain(q.group(1), 300) if q else "", lab=m.group("name"),
+                labid=lab["id"], steps=steps, looks=[])
+        else:
+            first = next(i for i in ITEMS if i["kind"] == "experiment" and i.get("lab") == m.group("name"))
+            sid, stitle = section(m.start())
+            views = len(re.findall(r"data-view=", body[m.end():body.find("</figure>", m.end())]))
+            first["looks"].append(dict(slug=p["slug"], num=p["num"], anchor=m.group("id"), sec=stitle, views=views))
+    p["body"] = body
+
+
 # ----------------------------------------------------------------------------- pages
 def read_page(p: dict):
     f = CONTENT / f"{p['slug']}.md"
@@ -382,7 +586,11 @@ def render_all():
         files = list(dict.fromkeys(wf[w] for w in st["widgets"]))
         p["scripts"] = files
         p["needs_data"] = any(f in needs_data for f in files)
+        lab_post(p)
         p["goal_html"] = MarkdownIt("commonmark", {"typographer": True}).use(dollarmath_plugin).renderInline(prepass(p.get("goal", ""), p["slug"]))
+    for p in PAGES:
+        collect_items(p)
+        lab_refs(p)
     # glossary definitions may use math and term links too
     gmd = MarkdownIt("commonmark", {"html": True, "typographer": True}).use(dollarmath_plugin, allow_space=True)
     gmd.add_render_rule("math_inline", lambda self, tokens, idx, o, e: math_token(tokens[idx].content, False))
@@ -397,6 +605,7 @@ def render_all():
         if r.returncode != 0:
             raise BuildError("KaTeX failed:\n" + r.stderr)
         rendered = json.loads(r.stdout)
+        MATH_HTML[:] = rendered
         sub = lambda s: re.sub(r"\x00MATH(\d+)\x00", lambda m: rendered[int(m.group(1))], s)
         for p in PAGES:
             p["body"], p["goal_html"] = sub(p["body"]), sub(p["goal_html"])
@@ -439,6 +648,46 @@ def page_html(p: dict, tpl: str, prev_p, next_p) -> str:
     )
 
 
+def browse_page() -> str:
+    by = {k: [i for i in ITEMS if i["kind"] == k] for k, *_ in KINDS}
+    def esc(t):
+        return with_math(html.escape(t))
+
+    def where(i, anchor=None, sec=None, num=None, slug=None):
+        slug, num = slug or i["slug"], num or i["num"]
+        sec = sec if sec is not None else i["sec"]
+        t = f'{num} {esc(BY_SLUG[slug]["title"])}' + (f' <span class="br-sec">› {esc(sec)}</span>' if sec else "")
+        return f'<a class="br-where" href="{slug}.html#{anchor or i["anchor"]}" data-page="{slug}">{t}</a>'
+
+    chips = "".join(f'<button class="br-chip k-{k}" data-kind="{k}" aria-pressed="true"><b>{len(by[k])}</b> {esc(lab)}</button>' for k, lab, _ in KINDS if by[k])
+    parts = "".join(f'<option value="{i}">{"Part " + str(pt["n"]) + " · " if pt.get("n") is not None else ""}{esc(pt["title"])}</option>' for i, pt in enumerate(BOOK["parts"]) if any(x["part"] == i for x in ITEMS))
+    out = [f'<div class="br-sticky"><div class="gl-tools br-tools"><input id="br-filter" type="search" placeholder="Filter by any word…" aria-label="Filter"><select id="br-part" aria-label="Part"><option value="">all parts</option>{parts}</select><span id="br-count"></span></div>'
+           f'<div class="br-chips" role="group" aria-label="Kinds of content">{chips}</div></div>']
+    for k, label, blurb in KINDS:
+        items = by[k]
+        if not items:
+            continue
+        out.append(f'<section class="br-kind" data-kind="{k}" id="{k}s"><h2>{esc(label)} <small>{len(items)}</small></h2><p class="br-blurb">{esc(blurb)}</p>')
+        if k == "experiment":
+            out.append('<div class="br-labs">')
+            for i in items:
+                looks = "".join(f'<li><span class="br-look again">{"second" if j == 0 else "another"} look</span>{where(i, l["anchor"], l["sec"], l["num"], l["slug"])}<span class="br-n">{l["views"]} guided step{"s" if l["views"] != 1 else ""}</span></li>' for j, l in enumerate(i["looks"]))
+                out.append(f'<article class="br-item br-lab" data-part="{i["part"]}"><header><span class="lab-id">Experiment {i["labid"]}</span><a class="br-t" href="{i["slug"]}.html#{i["anchor"]}">{esc(i["title"])}</a></header>'
+                           f'<p class="br-q">{esc(i["text"])}</p><ul class="br-looks"><li><span class="br-look">first look</span>{where(i)}<span class="br-n">{i["steps"]}-step recipe</span></li>{looks}</ul></article>')
+            out.append("</div>")
+        else:
+            out.append('<ol class="br-list">')
+            for i in items:
+                tag = i.get("fig") or i.get("lang") or ""
+                title = f'<a class="br-t" href="{i["slug"]}.html#{i["anchor"]}">{esc(i["title"])}</a>' if i["title"] else ""
+                hint = f'<span class="br-hint">{esc(i["hint"])}</span>' if i.get("hint") else ""
+                out.append(f'<li class="br-item" data-part="{i["part"]}">{f"<span class=br-tag>{esc(tag)}</span>" if tag else ""}{title}{hint}'
+                           f'<p>{esc(i["text"])}</p>{where(i)}</li>')
+            out.append("</ol>")
+        out.append("</section>")
+    return "\n".join(out)
+
+
 def glossary_page() -> str:
     groups: dict[str, list] = {}
     for tid, t in sorted(GLOSSARY.items(), key=lambda kv: kv[1]["term"].lower()):
@@ -474,12 +723,18 @@ def build():
         shutil.copytree(THEME / "img", DIST / "assets" / "img")
     (DIST / "assets" / "css" / "pygments.css").write_text("")  # token colours live in theme css
     (DIST / "assets" / "data.js").write_text("window.DATA=" + json.dumps(RESULTS, separators=(",", ":")) + ";")
+    # each experiment's data is a separate script, loaded by its figure when it scrolls into view
+    (DIST / "assets" / "lab").mkdir()
+    for f in sorted((ROOT / "data" / "lab").glob("*.json")):
+        (DIST / "assets" / "lab" / f"{f.stem}.js").write_text(f"CE.labData.put({json.dumps(f.stem)},{f.read_text()});")
     manifest = dict(
         title=BOOK["title"], subtitle=BOOK["subtitle"],
         parts=[dict(n=pt.get("n"), title=pt["title"], color=pt["color"], blurb=pt.get("blurb", ""), pages=pt["pages"]) for pt in BOOK["parts"]],
         pages={p["slug"]: dict(title=p["title"], num=p["num"], part=p["part"], minutes=p["minutes"],
                                goal=re.sub(r"<[^>]+>", "", p["goal_html"]), sections=p["sections"]) for p in PAGES},
         order=[p["slug"] for p in PAGES],
+        items=[[i["kind"], i["slug"], i["anchor"], with_math(i["title"] or i["text"][:70], False), i.get("labid", i.get("fig", "")), with_math(i["text"][:200], False)] for i in ITEMS],
+        kinds=KIND_ONE,
         terms={tid: dict(term=t["term"], short=t["short_html"], page=t.get("page"), color=t.get("color", "ink"),
                          aka=[a for a in t.get("aliases", [])][:3]) for tid, t in GLOSSARY.items()},
     )
@@ -492,6 +747,11 @@ def build():
              goal_html=f"Every term in the book, {len(GLOSSARY)} of them, each with a one-line reminder and a link to the page that explains it.",
              minutes=5, body=glossary_page(), scripts=[], needs_data=False, layout="page glossary", _state=dict(fig=0))
     (DIST / "glossary.html").write_text(page_html(g, tpl, PAGES[-1], None))
+    nlab = sum(i["kind"] == "experiment" for i in ITEMS)
+    b = dict(slug="browse", part=len(BOOK["parts"]) - 1, num="", title="Browse by kind", kicker="Reference",
+             goal_html=f"Everything in the book that is not running prose, by kind: {nlab} experiments, every figure and diagram, the key ideas, measured results, pitfalls and checkpoints. Each links to its place in the text.",
+             minutes=5, body=browse_page(), scripts=[], needs_data=False, layout="page glossary browse", _state=dict(fig=0))
+    (DIST / "browse.html").write_text(page_html(b, tpl, PAGES[-1], None))
     (DIST / ".nojekyll").write_text("")
     words = sum(len(re.findall(r"\w+", p["_src"])) for p in PAGES)
     print(f"built {len(PAGES)} pages + glossary ({len(GLOSSARY)} terms), {len(MATH)} formulas, ~{words:,} words -> {DIST}")

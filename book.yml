@@ -13,7 +13,7 @@ parts:
     title: Vectors with meaning
     color: k-vec
     blurb: Where embeddings come from, what their geometry means, and what "close" measures.
-    pages: [map, meaning-from-context, contextual-embeddings, contrastive-training, geometry-of-embeddings, closeness, timeline]
+    pages: [map, meaning-from-context, contextual-embeddings, contrastive-training, geometry-of-embeddings, shape-of-the-cloud, closeness, timeline]
 
   - n: 2
     title: Finding neighbours fast

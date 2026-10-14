@@ -12,7 +12,7 @@ goal: Before choosing an index, multiply three numbers. At a billion vectors mem
 | 10⁸ | a large e-commerce catalogue, a news archive |
 | 10⁹–10¹¹ | web search, social posts, ad inventory, deduplicating an LLM training set |
 
-::: widget napkin
+::: widget napkin | Napkin math for a vector index
 **Slide the numbers yourself** The vertical ticks are a 16 GB laptop, an 80 GB GPU, 1 TB of server RAM and a 100 TB cluster, on a log scale: each step to the right is ten times more. [[HNSW]] adds roughly 2 × M × 4 bytes of links per vector on top (about 256 bytes at M = 32).
 :::
 

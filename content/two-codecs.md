@@ -28,7 +28,7 @@ Sequential, per book, written once. It can use everything.
 
 A response holds 50 to 200 vectors from all over the corpus. There is no previous window: step 3 is unavailable. Everything else applies to a single vector on its own.
 
-::: widget wire-sizes
+::: widget wire-sizes | Compressing a search response
 **A search response, measured** 300 queries, the top 50 vectors of each. General-purpose compression against a model that both ends hold.
 :::
 
@@ -101,7 +101,7 @@ Going from exact to ±1 step saves {{near1_saving|.0f}} bits per vector. That on
 "Three tiers, each with the compressor that fits its job. And one honest surprise: the fancy codebooks we built for search turned out not to help the archive. A matrix and a bell curve did."
 :::
 
-::: svg three-tiers
+::: svg three-tiers | One product, three compressors
 **One product, three compressors** The RAM tier is encoder-heavy and lossy. The SSD tier is cheap both ways. The archive is lossless and sequential, and is what lets Marginalia retrain codebooks or change quantizers later without paying to re-embed.
 :::
 

@@ -8,7 +8,7 @@ goal: Train directly for the thing you want. Show the model pairs that should ma
 
 Sentence-BERT (2019) showed the fix for the problem on the previous page. Give the model pairs that *should* match (a question and its answer, a title and its article, a caption and its image), make their vectors close, and push everything else away.
 
-::: svg contrastive
+::: svg contrastive | Contrastive training
 **Contrastive training** The query pulls its positive closer and pushes negatives away. The woodworking passage is a [[hard negative]]: it shares the word "router" but answers a different question.
 :::
 

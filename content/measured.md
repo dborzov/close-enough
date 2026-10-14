@@ -8,7 +8,7 @@ goal: Enough toy problems. Every method so far, on the same real vectors, at the
 
 Each method compresses {{d}} floats into **64 bits**: a 192× reduction. Codebooks are trained on {{n_train|,}} windows and scored on the {{n_db|,}} windows of four other books. Recall is [[10-recall@10]] over {{n_queries}} queries from yet other books, with **no re-ranking**.
 
-::: widget bench64
+::: widget bench64 | Every method at 64 bits
 **Read it left to right** Each step down in error costs a step right in encode time. Hover for details. The [pink]{style="color:var(--s5)"} points use the order of the windows, explained below.
 :::
 

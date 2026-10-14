@@ -18,7 +18,7 @@ w = softmax(scores)           # a soft version of "pick the nearest"
 out = w @ V                   # blend of the values of the closest keys
 ```
 
-::: widget attention
+::: widget attention | Attention as soft nearest neighbour
 **Drag the query arrow, then lower the temperature** Arrow thickness is attention weight. At low temperature one key takes nearly all the weight: hard nearest-neighbour retrieval. When the weight is concentrated in a few keys you only need to *find* those few, which is an ANN problem.
 :::
 

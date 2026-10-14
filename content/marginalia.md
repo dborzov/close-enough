@@ -5,7 +5,7 @@ goal: One invented company, one real dataset, and two budgets to hit. Everything
 ---
 
 ::: story Priya, co-founder of Marginalia | WEEK 1 · THE PITCH
-"Marginalia is search for the inside of books. You type *the part where the narrator decides to go to sea because he's depressed*, and we take you to the paragraph in *Moby-Dick*. No keywords, just meaning. We start with the public-domain catalogue on Project Gutenberg, about 75,000 books."
+"Marginalia is search for the inside of books. You type *the part where she falls so long she wonders if she'll come out on the other side of the world*, and we take you to the paragraph in *Alice in Wonderland*. No keywords, just meaning. We start with the public-domain catalogue on Project Gutenberg, about 75,000 books."
 :::
 
 Priya and her co-founder are two people with a GPU budget and a single search server. They are about to discover that the hard part of their product is not the model. It is storing what the model produces.
@@ -18,7 +18,7 @@ Priya and Marginalia are invented to keep the numbers concrete. The books, the v
 
 Cut each book into short overlapping [windows]{.def .k-vec} of text and embed each one.
 
-::: widget pipeline
+::: widget pipeline | From a book to vectors
 **The pipeline** 48-word windows with a stride of 24, so each window shares half its words with the next. Each coloured column on the right is one real embedding (the first 24 of its {{d}} coordinates; colour shows sign and size). Neighbouring columns look alike. Hold on to that.
 :::
 
@@ -31,10 +31,10 @@ def windows(words, size=48, stride=24):
         yield " ".join(words[s:s + size])
 
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")   # 384-d
-words = open("moby_dick.txt").read().split()
+words = open("alice.txt").read().split()
 X = model.encode(list(windows(words)), batch_size=256,
                  normalize_embeddings=True)   # (n_windows, 384) float32, unit length
-np.save("moby_dick.f32.npy", X)               # 1,536 bytes per window
+np.save("alice.f32.npy", X)                   # 1,536 bytes per window
 ```
 
 ## The data used in this book
@@ -78,7 +78,7 @@ So Marginalia has two different compression problems.
   Every bit must come back. Here the tools of the first half become *predictors* and *probability models*. → Part 6
 :::
 
-::: svg asymmetry
+::: svg asymmetry | Encode once, compare often
 **The asymmetry** A vector is [encoded]{.k-enc} once, when it enters the index. It is [decoded]{.k-dec} or [compared]{.k-q} every time a query touches it. This is why it can be worth making encoding very expensive.
 :::
 

@@ -17,7 +17,7 @@ Beam search builds a code left to right. [[icm|Iterated conditional modes]] (ICM
 
 It is a decades-old trick from image restoration (Besag, 1986) and the core of [[LSQ]] (Martinez et al., 2016) and LSQ++ (2018).
 
-::: widget icm
+::: widget icm | ICM, one step at a time
 **Step through it** Each row is a codebook; each cell shows how good that entry would be given the current choice in every other row. Brighter is better; the yellow outline is the current choice. Each update moves the outline to the brightest cell of the row marked ▸, so the error on the right never goes up. When every outline sits on its row's best cell, ICM is stuck. Perturb two rows to escape.
 :::
 
@@ -53,7 +53,7 @@ Now compare them fairly. Same problem ($d = 8$, $M = 4$, $K = 16$), 120 test vec
 
 The slider sets how much the codebooks **overlap**. At 0 each codebook lives in its own two dimensions, exactly like PQ, so every pairwise term is zero. At 1 every codeword points freely in all 8 dimensions.
 
-::: widget encoder-lab
+::: widget encoder-lab | Encoders against the optimum
 **Move the overlap slider** The x axis is compute in table lookups per vector (log scale); the y axis is how far above the optimum each encoder lands on average. Hover the points.
 :::
 

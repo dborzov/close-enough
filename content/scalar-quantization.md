@@ -16,7 +16,7 @@ $$ \kres{D} \;=\; \frac{\kbook{\Delta}^2}{12} $$
 One more bit halves $\Delta$, which **quarters** the squared error. In signal-processing units a factor of 4 is 6.02 dB. This single fact reappears on almost every later page.
 :::
 
-::: widget scalar-quant
+::: widget scalar-quant | Scalar quantization: bits and clipping
 **Slide the bits, then the clip range** With few bits you must choose: a wide range wastes levels on values that almost never occur, a narrow one clips the tails (red). Press *best c* to see the compromise move outward as bits are added.
 :::
 

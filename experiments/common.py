@@ -51,11 +51,11 @@ def embed(texts, batch=512):
 
 
 def load_data():
-    """Returns dict with X (all windows), book id per window, split masks, texts of the Moby demo slice."""
+    """Returns dict with X (all windows), the book id of each window and the book file names."""
     f = CACHE / "emb.npz"
     if f.exists():
         z = np.load(f, allow_pickle=True)
-        return {k: z[k] for k in z.files}
+        return {k: z[k] for k in z.files if k in ("X", "book", "ids")}
     g = gutenberg()
     ids = g.fileids()
     texts, book = [], []
@@ -65,24 +65,10 @@ def load_data():
         book += [b] * len(w)
     log(f"{len(ids)} books, {len(texts)} windows; embedding with {MODEL}")
     X = embed(texts)
-    # Moby-Dick demo slice: 240 windows starting at chapter 1
-    words = g.raw("melville-moby_dick.txt").split()
-    ch = {}
-    for i in range(len(words) - 1):
-        if words[i] == "CHAPTER" and words[i + 1] in ("1", "2", "3", "4") and words[i + 1] not in ch:
-            ch[words[i + 1]] = i
-    start = ch["1"] + 3  # skip "CHAPTER 1 Loomings."
-    demo_words = words[start:]
-    demo_texts = windows(demo_words)[:240]
-    demo = embed(demo_texts)
-    chapters = [[0, "Loomings"], [(ch["2"] - start) // STRIDE, "The Carpet-Bag"], [(ch["3"] - start) // STRIDE, "The Spouter-Inn"]]
     out = dict(
         X=X,
         book=np.array(book, dtype=np.int32),
         ids=np.array(ids),
-        demo=demo,
-        demo_texts=np.array(demo_texts),
-        chapters=np.array(json.dumps(chapters)),
     )
     np.savez(f, **out)
     return out

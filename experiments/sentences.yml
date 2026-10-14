@@ -1,0 +1,47 @@
+# Hand-written sentences for the toy experiments in "What the geometry means".
+# They are embedded with the same model as the books (geometry.py).
+
+# Experiment "two dials": each situation in four versions,
+# [good, past], [good, present], [bad, past], [bad, present].
+# Half the situations are used to find the directions, the other half only to test them.
+dials:
+  - [We had a wonderful dinner at the new restaurant., We are having a wonderful dinner at the new restaurant., We had a horrible dinner at the new restaurant., We are having a horrible dinner at the new restaurant.]
+  - [The sun shone all week and the beach was perfect., The sun is shining and the beach is perfect., It rained all week and the beach was miserable., It is raining and the beach is miserable.]
+  - [Our new neighbour helped us carry the boxes and brought us cake., Our new neighbour helps us carry the boxes and brings us cake., Our new neighbour shouted at us and blocked the driveway., Our new neighbour shouts at us and blocks the driveway.]
+  - [The concert last night was magical and the crowd sang every song., The concert tonight is magical and the crowd is singing every song., The concert last night was a disaster and the sound kept cutting out., The concert tonight is a disaster and the sound keeps cutting out.]
+  - [The hotel room was spotless and the bed was comfortable., The hotel room is spotless and the bed is comfortable., The hotel room was dirty and the bed was full of crumbs., The hotel room is dirty and the bed is full of crumbs.]
+  - [She passed the exam with ease and felt proud., She is passing the exam with ease and feels proud., She failed the exam and felt ashamed., She is failing the exam and feels ashamed.]
+  - [The puppy played happily in the garden., The puppy plays happily in the garden., The puppy whimpered in pain in the garden., The puppy whimpers in pain in the garden.]
+  - [I loved the novel and finished it in one night., I love the novel and cannot put it down., I hated the novel and gave up after one chapter., I hate the novel and keep putting it down.]
+  - [He got the job he had always wanted., He is starting the job he has always wanted., He lost the job he had always wanted., He is losing the job he has always wanted.]
+  - [The train arrived early and the ride was smooth., The train arrives early and the ride is smooth., The train was cancelled and we were stranded for hours., The train is cancelled and we are stranded for hours.]
+  - [The garden bloomed with roses all summer., The garden is blooming with roses this summer., The garden withered and died all summer., The garden is withering and dying this summer.]
+  - [I met my oldest friend and we laughed for hours., I am with my oldest friend and we are laughing for hours., I argued with my oldest friend and we stopped speaking., I am arguing with my oldest friend and we have stopped speaking.]
+  - [Our team won the final in the last minute., Our team is winning the final in the last minute., Our team lost the final in the last minute., Our team is losing the final in the last minute.]
+  - [The coffee tasted rich and delicious., The coffee tastes rich and delicious., The coffee tasted burnt and stale., The coffee tastes burnt and stale.]
+  - [The teacher praised my essay in front of the class., The teacher praises my essay in front of the class., The teacher mocked my essay in front of the class., The teacher mocks my essay in front of the class.]
+  - [The doctor said the baby was healthy and strong., The doctor says the baby is healthy and strong., The doctor said the baby was seriously ill., The doctor says the baby is seriously ill.]
+  - [We moved into a bright warm house that we adored., We live in a bright warm house that we adore., We moved into a dark damp house that we detested., We live in a dark damp house that we detest.]
+  - [The wedding was joyful and everyone danced until midnight., The wedding is joyful and everyone is dancing until midnight., The wedding was a disaster and the guests left in tears., The wedding is a disaster and the guests are leaving in tears.]
+  - [The farmers celebrated a record harvest., The farmers are celebrating a record harvest., The farmers mourned a ruined harvest., The farmers are mourning a ruined harvest.]
+  - [Our flight was calm and the crew was kind., Our flight is calm and the crew is kind., Our flight was terrifying and the crew was rude., Our flight is terrifying and the crew is rude.]
+
+# Experiment "hot and cold": an anchor sentence and four partners:
+# opposite (one word flipped), negated, paraphrase (same meaning, different words), unrelated.
+pairs:
+  - [The soup is hot., The soup is cold., The soup is not hot., The broth is scalding., The car is parked outside.]
+  - [I loved the film., I hated the film., I did not love the film., The movie was a delight to me., The bus leaves at noon.]
+  - [The shop is open., The shop is closed., The shop is not open., You can go in and buy things now., My cousin plays the violin.]
+  - [He arrived early., He arrived late., He did not arrive early., He got there before anyone expected., The river flooded the valley.]
+  - [The test was easy., The test was difficult., The test was not easy., Nobody struggled with any of the questions., Birds migrate south in autumn.]
+  - [She won the race., She lost the race., She did not win the race., She crossed the finish line first., The bread needs more salt.]
+  - [The room is bright., The room is dark., The room is not bright., Plenty of light comes through the windows., The tax form is due in April.]
+  - [The patient is getting better., The patient is getting worse., The patient is not getting better., Her health improves day by day., The museum has a new painting.]
+  - [The price went up., The price went down., The price did not go up., It costs more than it used to., The children built a snowman.]
+  - [The bridge is safe., The bridge is dangerous., The bridge is not safe., You can cross it without any risk., We ordered pizza for lunch.]
+  - [The answer is correct., The answer is wrong., The answer is not correct., That is exactly right., The dog sleeps by the fire.]
+  - [The water is deep., The water is shallow., The water is not deep., You cannot touch the bottom here., She painted the fence green.]
+  - [My phone is new., My phone is old., My phone is not new., I bought this handset last week., The orchestra tuned their instruments.]
+  - [The king was generous., The king was greedy., The king was not generous., The ruler gave freely to his people., The printer is out of paper.]
+  - [Alice grew taller., Alice grew smaller., Alice did not grow taller., Her height increased., The stock market closed early.]
+  - [The guests were happy., The guests were sad., The guests were not happy., Everyone at the party was smiling., Copper conducts electricity.]

@@ -12,7 +12,7 @@ $$ \kbits{\text{total bits}} \;=\; \underbrace{\kcode{\text{side information}}}_
 
 This is a [[two-part code]], and choosing how much to spend on the first part is the [[minimum description length]] principle in its plainest form.
 
-::: svg lossless-coder
+::: svg lossless-coder | A quantizer as side information
 **A quantizer as side information** The stored file is the [code]{.k-code} plus the [entropy-coded residual]{.k-bits}. The decoder recomputes the prediction from the code, so adding the residual restores every bit.
 :::
 
@@ -34,7 +34,7 @@ In lossy mode the depth of a quantizer is set by a memory budget. In lossless mo
 
 The progressive property of RQ ([[@residual-quantization]]) lets us train one deep stack of 24 stages and choose the depth afterwards.
 
-::: widget lossless-sweep
+::: widget lossless-sweep | Lossless size against predictor stages
 **Hover the chart** Bits per vector to store the database books exactly, against the number of RQ stages $m$ used as the predictor. [Pink band]{.k-code}: the code, 8 bits per stage. [Dashed lime]{.k-bits}: the residual alone. Solid lime: the total. The dashed baselines use no quantizer.
 :::
 
@@ -56,7 +56,7 @@ From 0 to 8 stages the error falls to {{i8_m8_err|.2f}} of its starting value. T
 
 Use quantized PCA coefficients as side information instead, with one step size $s$ for all of them. Small directions round to zero and cost almost nothing, so this is water-filling ([[@spectrum-and-bits]]) with a single knob.
 
-::: widget side-info
+::: widget side-info | Two kinds of side information
 **Two kinds of side information on one axis** x: bits spent on the side information. y: total bits, zoomed. Both curves are shallow bowls with a minimum.
 :::
 

@@ -55,7 +55,7 @@ Then you need an index, and indexes run into a wall.
 
 In two dimensions, "near" and "far" are very different. Slide the dimension up and watch what happens to the gap.
 
-::: widget dim-curse
+::: widget dim-curse | Distances in high dimensions
 **Slide d from 2 to 1,024** In high dimensions almost every random point sits at distance √2 from the query, which is to say at a right angle to it. The nearest point is barely nearer than the farthest.
 :::
 

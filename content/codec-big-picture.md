@@ -38,7 +38,7 @@ Most of this part uses the **int8** target: each coordinate is an integer betwee
 
 Every lossless coder for numbers has the same two halves.
 
-::: svg codec-pipeline
+::: svg codec-pipeline | The lossless codec
 **The codec** A *model* looks at the context (whatever the decoder will also have) and outputs a guess and an uncertainty. The entropy coder turns the actual value into about −log₂ q bits. The decoder runs the same model on the same context and inverts the coder.
 :::
 
@@ -64,7 +64,7 @@ So building a codec means building a probability model. The four layers of [[@co
 
 To set expectations, here is the final scoreboard for the archive. Each row adds one idea to the model.
 
-::: widget ladder
+::: widget ladder | The lossless ladder, measured
 **Measured** Bits per vector for an int8-exact copy of four held-out books, with an ideal entropy coder (a real one lands within a tenth of a percent, [[@entropy-coders]]).
 :::
 

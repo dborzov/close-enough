@@ -8,7 +8,7 @@ goal: The theory predicted LSH would struggle on these vectors. Here is the meas
 
 Same database, same queries, three kinds of index. The x axis is how much of the database each query had to be compared with; the y axis is how many of the true top 10 were found.
 
-::: widget lsh-frontier
+::: widget lsh-frontier | LSH recall against work
 **Up and to the left is better** Each blue curve is LSH with a fixed number of bits per table, running from 1 table to 64. Pink is multi-probe LSH. Green is IVF, the k-means partition of [[@partitioning]], with its `nprobe` raised from 1 to 32.
 :::
 

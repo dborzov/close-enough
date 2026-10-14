@@ -15,7 +15,7 @@ $$ \Big\lVert \kvec{x} - \sum_{m} \kbook{c_m} \Big\rVert^2 \;=\; \lVert x\rVert^
 
 If you have met graphical models, this is an [energy]{.def .k-enc} over a graph with $M$ nodes, each taking one of $K$ labels, with an edge for every interacting pair. Minimising such an energy on a general graph is NP-hard.
 
-::: svg energy-graphs
+::: svg energy-graphs | Four methods as graphs
 **One picture, four methods** [Nodes]{.k-book} are codebooks, [edges]{.k-enc} are non-zero pairwise terms. PQ deletes the edges by construction. Tree quantization lets codebooks overlap only in a tree pattern, so exact encoding is dynamic programming. Unconstrained [[additive quantization]] keeps every edge.
 :::
 
@@ -42,7 +42,7 @@ Greedy keeps one partial code after each stage. [[beam search|Beam search]] keep
 
 With $B = 1$ it is greedy RQ. This is the encoder of the original additive quantization paper (Babenko and Lempitsky, 2014) and what Faiss uses for its residual quantizer (`max_beam_size`).
 
-::: widget beam
+::: widget beam | Beam search over codebooks
 **Try B = 1, then raise it** One test vector from an 8-dimensional problem with $M = 4$ codebooks of $K = 16$. Each column is a stage; each dot is a candidate partial code, at a height equal to its error. Mint dots survive, faint ones are pruned. The dashed line is the true optimum, found by checking all 65,536 codes.
 :::
 

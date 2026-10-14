@@ -10,7 +10,7 @@ CE.widget('pipeline', el => {
     <text x="20" y="28" class="t-big">a book</text>
     <rect x="20" y="40" width="380" height="26" rx="5" class="box"/>
     <g style="font-size:11px">
-      <text x="30" y="58" class="t-ink">Call me Ishmael. Some years ago—never mind how long…</text>
+      <text x="30" y="58" class="t-ink">Alice was beginning to get very tired of sitting by her sister…</text>
     </g>
     <g>
       <rect x="20" y="80" width="150" height="16" rx="4" style="fill:var(--k-vec);opacity:.85"/>
@@ -40,86 +40,6 @@ CE.widget('pipeline', el => {
   }));
   S.forEach((_, i) => { s += `<text x="${i * 30 + 13}" y="${6 + 24 * 6.4 + 14}" text-anchor="middle" style="font-size:10px">x${['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'][i] || ''}${i > 9 ? i : ''}</text>`; });
   g.innerHTML = s;
-});
-
-CE.widget('locality', el => {
-  el.innerHTML = `<div class="two">
-      <canvas id="cv-sim" style="height:min(78vw,430px)" aria-label="Cosine similarity matrix of 240 consecutive windows of Moby-Dick."></canvas>
-      <div class="side"><canvas id="cv-traj" style="height:min(78vw,430px)" aria-label="The same windows as a path in the plane of their top two principal directions."></canvas></div>
-    </div>
-    <div class="snip" id="sim-out">Hover a cell or a point.</div>`;
-  const cv = $('#cv-sim'), ct = $('#cv-traj'), out = $('#sim-out'); if (!cv || !DATA) return;
-  const M = DATA.props.moby, N = M.sim.length, chs = M.chapters;
-  const chOf = i => { let c = 0; chs.forEach((b, k) => { if (i >= b[0]) c = k; }); return c; };
-  const chCol = () => [C.vec, C.code, C.dec];
-  let hover = null, img = null, imgTheme = null, Lsim = null, Ltr = null;
-  function buildImg() {
-    const off = document.createElement('canvas'); off.width = N; off.height = N;
-    const x = off.getContext('2d'), id = x.createImageData(N, N);
-    const stops = [C.bg2, C.q, C.code, C.vec];
-    const vals = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (i !== j) vals.push(M.sim[i][j]);
-    vals.sort((a, b) => a - b); const lo = vals[Math.floor(vals.length * 0.30)], hi = vals[Math.floor(vals.length * 0.995)];
-    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
-      const v = Math.max(0, Math.min(1, (M.sim[i][j] - lo) / (hi - lo)));
-      const t = Math.pow(v, 1.15) * 3, k = Math.min(2, Math.floor(t)), c = mix(stops[k], stops[k + 1], t - k);
-      const p = (i * N + j) * 4; id.data[p] = c[0]; id.data[p + 1] = c[1]; id.data[p + 2] = c[2]; id.data[p + 3] = 255;
-    }
-    x.putImageData(id, 0, 0); img = off; imgTheme = C.bg2;
-  }
-  function drawSim() {
-    if (!img || imgTheme !== C.bg2) buildImg();
-    const { ctx, w, h } = setup(cv);
-    const S = Math.min(w - 50, h - 40), ox = 34 + (w - 34 - S) / 2, oy = 14;
-    ctx.imageSmoothingEnabled = false; ctx.drawImage(img, ox, oy, S, S);
-    ctx.font = '11px "JetBrains Mono", monospace'; ctx.fillStyle = C.muted; ctx.textAlign = 'right';
-    ctx.strokeStyle = rgba(C.ink, 0.85); ctx.lineWidth = 1.2;
-    chs.forEach((b, k) => { const p = ox + Math.max(0, b[0]) / N * S; ctx.beginPath(); ctx.moveTo(p, oy - 6); ctx.lineTo(p, oy); ctx.moveTo(ox - 6, oy + Math.max(0, b[0]) / N * S); ctx.lineTo(ox, oy + Math.max(0, b[0]) / N * S); ctx.stroke(); ctx.save(); ctx.fillStyle = chCol()[k]; ctx.textAlign = 'right'; ctx.fillText('Ch ' + (k + 1), ox - 8, oy + Math.max(0, b[0]) / N * S + 14); ctx.restore(); });
-    ctx.textAlign = 'center'; ctx.fillStyle = C.muted; ctx.fillText('window j →', ox + S / 2, oy + S + 16);
-    if (hover) {
-      const [i, j] = hover; ctx.strokeStyle = C.ink; ctx.lineWidth = 1;
-      ctx.strokeRect(ox + j / N * S - 2, oy + i / N * S - 2, S / N + 4, S / N + 4);
-      ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(ox, oy + (i + .5) / N * S); ctx.lineTo(ox + S, oy + (i + .5) / N * S); ctx.moveTo(ox + (j + .5) / N * S, oy); ctx.lineTo(ox + (j + .5) / N * S, oy + S); ctx.stroke(); ctx.setLineDash([]);
-    }
-    Lsim = { ox, oy, S };
-  }
-  function drawTraj() {
-    const { ctx, w, h } = setup(ct);
-    const T = M.traj; let xs = T.map(p => p[0]), ys = T.map(p => p[1]);
-    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), pad = 22;
-    const sc = Math.min((w - 2 * pad) / (x1 - x0), (h - 2 * pad - 60) / (y1 - y0));
-    const X = x => pad + (x - x0) * sc + ((w - 2 * pad) - (x1 - x0) * sc) / 2, Y = y => h - pad - 50 - (y - y0) * sc;
-    const cc = chCol(), Wd = 6;
-    const Sm = T.map((_, i) => { let a = 0, b = 0, n = 0; for (let k = Math.max(0, i - Wd); k <= Math.min(T.length - 1, i + Wd); k++) { a += T[k][0]; b += T[k][1]; n++; } return [a / n, b / n]; });
-    for (let i = 1; i < T.length; i++) { ctx.strokeStyle = rgba(cc[chOf(i)], 0.16); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(X(T[i - 1][0]), Y(T[i - 1][1])); ctx.lineTo(X(T[i][0]), Y(T[i][1])); ctx.stroke(); }
-    T.forEach((p, i) => dot(ctx, X(p[0]), Y(p[1]), 2.2, rgba(cc[chOf(i)], 0.55)));
-    for (let i = 1; i < Sm.length; i++) { ctx.strokeStyle = cc[chOf(i)]; ctx.lineWidth = 3.2; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(X(Sm[i - 1][0]), Y(Sm[i - 1][1])); ctx.lineTo(X(Sm[i][0]), Y(Sm[i][1])); ctx.stroke(); }
-    ctx.font = '12px "JetBrains Mono", monospace'; chs.forEach((c, k) => { const ly = h - 12 - (chs.length - 1 - k) * 17; dot(ctx, 16, ly - 4, 4.5, cc[k]); ctx.fillStyle = cc[k]; ctx.textAlign = 'left'; ctx.fillText('Ch ' + (k + 1) + ' · ' + c[1], 26, ly); });
-    dot(ctx, X(T[0][0]), Y(T[0][1]), 5, null, C.ink, 2);
-    ctx.font = '19px Caveat, cursive'; ctx.fillStyle = C.ink; ctx.textAlign = 'left'; ctx.fillText('start', X(T[0][0]) + 8, Y(T[0][1]) - 6);
-    if (hover) { const ids = hover[0] === hover[1] ? [hover[0]] : hover; ids.forEach((i, k) => dot(ctx, X(T[i][0]), Y(T[i][1]), 7, null, k ? C.q : C.ink, 2.5)); }
-    ctx.font = '11px "JetBrains Mono", monospace'; ctx.fillStyle = C.muted; ctx.fillText('top-2 principal plane · thick = 13-window average', 10, 16);
-    Ltr = { X, Y };
-  }
-  function show() {
-    if (!hover) { out.innerHTML = 'Hover a cell or a point.'; return; }
-    const [i, j] = hover, cc = chCol();
-    const line = (k, lab) => `<div><span class="tag" style="color:${cc[chOf(k)]}">${lab} ${k} · Ch ${chOf(k) + 1}</span>${esc(M.snip[k])}</div>`;
-    out.innerHTML = i === j ? line(i, 'window') : line(i, 'row') + `<div style="margin:.3rem 0"><span class="tag" style="color:var(--k-q)">cosine ${(M.sim[i][j] / 100).toFixed(2)}</span></div>` + line(j, 'col');
-  }
-  function draw() { drawSim(); drawTraj(); show(); }
-  cv.addEventListener('pointermove', e => {
-    if (!Lsim) return; const r = cv.getBoundingClientRect(), px = e.clientX - r.left - Lsim.ox, py = e.clientY - r.top - Lsim.oy;
-    if (px < 0 || py < 0 || px >= Lsim.S || py >= Lsim.S) return;
-    const j = Math.floor(px / Lsim.S * N), i = Math.floor(py / Lsim.S * N);
-    if (!hover || hover[0] !== i || hover[1] !== j) { hover = [i, j]; draw(); }
-  });
-  ct.addEventListener('pointermove', e => {
-    if (!Ltr) return; const r = ct.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
-    let b = -1, bd = 26; M.traj.forEach((p, i) => { const d = Math.hypot(Ltr.X(p[0]) - px, Ltr.Y(p[1]) - py); if (d < bd) { bd = d; b = i; } });
-    if (b >= 0 && (!hover || hover[0] !== b || hover[1] !== b)) { hover = [b, b]; draw(); }
-  });
-  hover = [12, 12];
-  redraws.push(() => { img = null; draw(); }); draw();
 });
 
 CE.widget('adc', el => {

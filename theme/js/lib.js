@@ -121,6 +121,51 @@
   };
   L.legend = items => `<div class="clegend">${items.map(([name, col, line]) => `<span><i class="${line ? 'line' : ''}" style="background:${col}"></i>${name}</span>`).join('')}</div>`;
   L.html = (el, h) => { el.innerHTML = h; return el; };
+
+  /* ---------- experiments ----------
+     CE.labData.get(name) -> Promise of data/lab/<name>.json (loaded as assets/lab/<name>.js, so it also works from file://).
+     L.lab(el, views) wires the "read it again" steps of the experiment's figure to the widget: views = {name: () => void}. */
+  const store = {}, waiting = {};
+  CE.labData = {
+    put(name, d) { store[name] = d; (waiting[name] || []).forEach(f => f(d)); delete waiting[name]; },
+    get(name) {
+      if (store[name]) return Promise.resolve(store[name]);
+      return new Promise((res, rej) => {
+        const first = !waiting[name]; (waiting[name] = waiting[name] || []).push(res);
+        if (!first) return;
+        const s = document.createElement('script'); s.src = 'assets/lab/' + name + '.js'; s.async = true;
+        s.onerror = () => rej(new Error('could not load the data for this experiment')); document.head.appendChild(s);
+      });
+    },
+  };
+  L.lab = function (el, views) {
+    const fig = el.closest('figure.lab'), steps = fig ? [...fig.querySelectorAll('.lab-reading [data-view]')] : [];
+    const api = { look: el.dataset.look || 'first', fig, active: null,
+      show(name) {
+        if (!views[name]) { console.warn('unknown view', name); return; }
+        api.active = name; steps.forEach(s => s.setAttribute('aria-pressed', s.dataset.view === name ? 'true' : 'false'));
+        views[name]();
+      },
+      /* a manual change (a control, a click on the plot) leaves the guided reading */
+      clear() { if (!api.active) return; api.active = null; steps.forEach(s => s.setAttribute('aria-pressed', 'false')); } };
+    steps.forEach(s => {
+      s.setAttribute('aria-pressed', 'false');
+      const go = () => { api.show(s.dataset.view); const r = el.getBoundingClientRect(); if (r.top < 0 || r.top > innerHeight * 0.5) el.scrollIntoView({ behavior: L.reduceMotion ? 'auto' : 'smooth', block: 'start' }); };
+      s.addEventListener('click', e => { if (e.target.closest('a')) return; go(); });
+      s.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    });
+    /* deep link to a reading step: page.html?show=<figure id>:<view>[,…] */
+    const want = (new URLSearchParams(location.search).get('show') || '').split(',').map(v => v.split(':')).find(v => fig && v[0] === fig.id && views[v[1]]);
+    if (want) setTimeout(() => api.show(want[1]), 0);
+    return api;
+  };
+  /* async widget body: shows a loading line, then builds with the data or reports the failure */
+  L.withLab = (el, name, build) => {
+    el.innerHTML = '<div class="lx-loading">loading the experiment data…</div>';
+    CE.labData.get(name).then(d => { el.innerHTML = ''; build(d); }).catch(err => { console.error(err); el.innerHTML = '<div class="lx-loading">This experiment failed to load: ' + L.esc(err.message) + '</div>'; });
+  };
+  L.BOOKS = () => [C.s1, C.s2, C.s3, C.s4, C.s5, C.s6];
+  L.deg = c => Math.acos(Math.max(-1, Math.min(1, c))) * 180 / Math.PI;
   /* standard normal / Laplace helpers used by several figures */
   L.erf = x => { const s = x < 0 ? -1 : 1; x = Math.abs(x); const t = 1 / (1 + 0.3275911 * x); const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return s * y; };
   L.Phi = x => 0.5 * (1 + L.erf(x / Math.SQRT2));

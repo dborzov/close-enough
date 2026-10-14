@@ -8,8 +8,8 @@ goal: If "exact" means the raw float32 from the model, almost nothing helps, and
 
 Here is the measured [[entropy]] of each of the 32 bit positions, across all {{n_float_values|,}} float32 values in the database books.
 
-::: widget float-bits
-**Where the bits go** Top: six real values from the first window of *Moby-Dick*, bit by bit: [sign]{.k-q}, [exponent]{.k-enc}, [mantissa]{.k-book}. Bottom: the entropy of each bit position over the whole dataset. A bar at full height is a fair coin.
+::: widget float-bits | The bits of a float32
+**Where the bits go** Top: six real values from the first window of *Alice in Wonderland*, bit by bit: [sign]{.k-q}, [exponent]{.k-enc}, [mantissa]{.k-book}. Bottom: the entropy of each bit position over the whole dataset. A bar at full height is a fair coin.
 :::
 
 - **The sign** is a coin flip: 1 bit.

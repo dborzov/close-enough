@@ -8,7 +8,7 @@ goal: The model says a value has probability q. Something must now emit about �
 
 After modelling, each coordinate is an integer residual with a known distribution: a bell curve of known spread. The coder's only task is to approach $-\log_2 q$ bits per value.
 
-::: widget coders
+::: widget coders | Four entropy coders against the entropy
 **Slide the spread** Average bits per value for four coders on a residual of spread σ, against the entropy. Start at σ ≈ 15, where Marginalia's residuals live. Then slide left, below σ = 1. Switch to *Laplace* to see why audio codecs choose differently.
 :::
 

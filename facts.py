@@ -203,4 +203,23 @@ def facts(R: dict) -> dict:
     f["marg_raw_gb"] = 300e6 * d * 4 / 1e9
     f["marg_int8_gb"] = 300e6 * d / 1e9
     f["marg_index_bytes"] = 8e9 / 300e6
+
+    # ---- the geometry experiments (experiments/geometry.py); every section's summary under a short prefix
+    deg = lambda c: math.degrees(math.acos(c))
+    prefix = dict(geo_map="map", geo_nn="nn", geo_dials="dials", geo_pairs="pairs", geo_random="rp", geo_spectrum="sp", geo_walk="walk")
+    for sec, pre in prefix.items():
+        for k, v in R.get(sec, {}).items():
+            if isinstance(v, dict):
+                for kk, vv in v.items():
+                    f[f"{pre}_{k}_{kk}"] = vv
+            else:
+                f[f"{pre}_{k}"] = v
+    if "geo_map" in R:
+        f["map_rest"] = 1 - f["map_var1"] - f["map_var2"]
+        f["nn_median_deg"] = deg(f["nn_median_cos"])
+        f["nn_tenth_deg"] = deg(f["nn_tenth_median"])
+        f["dials_angle"] = deg(f["dials_cos_dirs"])
+        f["rp_raw_deg"] = deg(f["rp_raw_mean"])
+        f["walk_drop"] = f["walk_lag1"] - f["walk_lag2"]
+        f["rp_hub_ratio"] = f["rp_hub_max_raw"] / 10
     return f

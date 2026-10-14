@@ -24,7 +24,7 @@ $$ h_r(\kvec{x}) \;=\; \operatorname{sign}(r \cdot \kvec{x}) $$
 
 When do two vectors get different bits? Exactly when the hyperplane passes *between* them.
 
-::: widget simhash-toy
+::: widget simhash-toy | Random hyperplanes in the plane
 **Drag the two arrows** Red lines are hyperplanes that separate the query from the document. In the plane a random line through the origin has a random angle, and it separates the arrows exactly when it falls inside the yellow angle between them.
 :::
 
@@ -42,7 +42,7 @@ bits = (X @ R.T) > 0                  # (N, n_bits) booleans
 
 ## Does it hold on real embeddings?
 
-::: widget lsh-collision
+::: widget lsh-collision | Collision probability, measured
 **Measured** Dots: the fraction of 2,048 random hyperplanes on which real query–passage pairs agree, grouped by their true angle. Line: $1-\theta/\pi$. The two dashed markers are the angles that matter for search on this data.
 :::
 

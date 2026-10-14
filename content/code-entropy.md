@@ -10,7 +10,7 @@ A [[PQ]] or [[RQ]] code stores each index in a flat 8 bits. That is optimal only
 
 An [[entropy coder]] can store each index in about $-\log_2 p$ bits instead.
 
-::: widget code-entropy
+::: widget code-entropy | Bits per index, per RQ stage
 **Bits per index, per RQ stage** Grey outline: the flat 8 bits. Blue: an ideal coder that knows how often each codeword is used. Orange: one that also knows the same stage's index in the *previous window*.
 :::
 

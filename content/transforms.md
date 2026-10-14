@@ -8,7 +8,7 @@ goal: Coordinates are correlated, and a per-coordinate model cannot see it. A ro
 
 Code two correlated coordinates separately and you pay for the same information twice.
 
-::: widget decorrelate
+::: widget decorrelate | Rotating the coding axes
 **Rotate the coding axes** Each axis is coded with its own bell curve, costing about $\log_2 \sigma$ bits. The panel shows the total relative to the original axes. Snap to the principal axes: that is the lowest a rotation can go. Then read the last line.
 :::
 
@@ -37,7 +37,7 @@ On Marginalia's int8 vectors the coding gain is **{{coding_gain|.0f}} bits per v
 
 A rotation is exactly what the lossy world uses ([[@spectrum-and-bits]]). For lossless coding it has a fatal flaw.
 
-::: svg lattice
+::: svg lattice | Rotations break the integer grid
 **The grid does not survive** Left: the int8 values sit on a square grid. Right: after a rotation the same points sit on a tilted grid. Rounding the rotated coordinates to integers moves each point, and nothing guarantees it can be moved back.
 :::
 
@@ -84,7 +84,7 @@ def innovations(x):                    # encoder side; x is a vector of integers
 # coordinate j is then coded with a bell curve of spread L[j, j] around its prediction
 ```
 
-::: widget cond-std
+::: widget cond-std | Spread explained by earlier coordinates
 **What the earlier coordinates explain** Blue: each coordinate's spread on its own. Orange: its spread once the coordinates before it are known. The gap, on a log scale, is the saving.
 :::
 

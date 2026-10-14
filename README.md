@@ -1,7 +1,7 @@
 # Close Enough
 
 A visual primer on embeddings, vector search, and the mathematics of compressing vectors.
-45 short pages, about 35 interactive figures, every number measured on real embeddings.
+46 short pages, about 40 interactive figures, every number measured on real embeddings.
 
 **Read it:** https://borzov.ca/close-enough/
 
@@ -13,10 +13,12 @@ Content, look and data are kept apart:
 |---|---|
 | `content/*.md` | The chapters, one markdown file per page. `content/README.md` documents the syntax. |
 | `content/glossary.yml` | Every term, with its one-line reminder and the page that explains it. |
+| (generated) `browse.html` | Every experiment, figure, diagram, key idea, measured result, pitfall, exercise, code sketch and checkpoint, by kind, linked to its place. |
 | `book.yml` | Title, parts and reading order. |
 | `theme/` | Everything visual: the page template, CSS, navigation and progress code, and the interactive figures (`theme/js/widgets/`). |
 | `figures/*.svg` | Static diagrams, included from markdown by name. |
 | `experiments/` | The scripts that produce every measurement. |
+| `data/lab/*.json` | The data behind each experiment figure, loaded only by the figure that shows it. |
 | `data/results.json` | Their output. Charts read it; numbers in the prose are substituted from it at build time (`facts.py`). |
 | `build.py` | Markdown + theme + data → `dist/`. |
 

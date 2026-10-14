@@ -22,7 +22,7 @@ $$ \Pr[\text{candidate}] \;=\; 1 - \big(1 - p^{\,k}\big)^{L} $$
 
 This is the [[AND-OR construction]], or [[amplification]]. As a function of similarity it is an S-curve: near zero for dissimilar points, near one for similar points, with a transition that sharpens as $k$ and $L$ grow together.
 
-::: widget lsh-scurve
+::: widget lsh-scurve | The LSH S-curve
 **Set k and L** The faint dotted line is a single bit. The dashed markers are a true 10th neighbour and a random pair on Marginalia's data. Where a marker meets the curve is, roughly, your recall (green) and the share of the database you will have to scan (red). When your settings match a measured configuration, the measurement appears below.
 :::
 

@@ -18,7 +18,7 @@ For compression the fix is one subtraction. Remove the mean before quantizing, s
 
 Take the covariance of the centred vectors and look at its eigenvalues: the variance along each [[pca|principal direction]]. Sorted from largest to smallest, this is the [[eigenvalue spectrum]].
 
-::: widget spectrum
+::: widget spectrum | Variance per principal direction
 **Hover the bars** The first 8 directions (yellow) hold {{var8|.0%}} of the variance, the first 64 hold {{var64|.0%}}, and the first 128 hold {{var128|.0%}}.
 :::
 
@@ -41,11 +41,14 @@ print("participation ratio:", 1 / (ev ** 2).sum())             # about {{pr|.0f}
 
 ## Neighbours in the text are neighbours in space
 
-These are not independent vectors. They are a [sequence]{.def .k-vec}. Below are 240 consecutive windows from the first three chapters of *Moby-Dick*.
+These are not independent vectors. They are a [sequence]{.def .k-vec}. You met this experiment in [[@shape-of-the-cloud#path]]; here it is again, read for what it offers a compressor.
 
-::: widget locality
-**Hover a cell or a point to read the text** Left: cosine similarity between window *i* (row) and window *j* (column); brighter is more similar. The bright diagonal band is locality. The faint blocks are chapters. Right: the same windows projected onto their top two principal directions and joined in reading order.
+:::: lab alice-walk prediction
+::: reading
+1. {diagonal} **The previous passage is a good guess.** The bright diagonal says each vector is close to the one before it. Store the difference from a prediction, not the vector itself.
+2. {lag} **The guess decays slowly.** One passage back is much better than two, and two is still better than a random passage. A predictor should lean on the most recent vector and on the book's own average.
 :::
+::::
 
 ::: stats
 - **{{lag1|.2f}}**{.k-vec} cosine between a window and the next (they share half their words)

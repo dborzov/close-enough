@@ -17,7 +17,7 @@ $$ \langle \kq{q}, \kdec{\hat x}\rangle \;=\; \sum_{m=1}^{M} \underbrace{\langle
 
 This is [[adc|asymmetric distance computation]] (ADC): the query stays exact, the database is compressed.
 
-::: widget adc
+::: widget adc | Asymmetric distance computation
 **ADC** The [pink]{.k-code} cells are the entries the code picks. The search cost is the same $M$ lookups for PQ, RQ and additive codes.
 :::
 

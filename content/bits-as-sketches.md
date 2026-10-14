@@ -12,7 +12,7 @@ $$ \hat\theta \;=\; \pi\,\frac{H}{b} \qquad\qquad \operatorname{sd}(\hat\theta) 
 
 The error falls like $1/\sqrt{b}$: four times the bits, half the error.
 
-::: widget sketch-estimate
+::: widget sketch-estimate | Angle estimates from bit sketches
 **Choose the number of bits** Each dot is a real pair of passages. With 64 bits the estimate is a blur; with 1,024 it hugs the diagonal.
 :::
 
@@ -33,7 +33,7 @@ shortlist = np.argpartition(ham, 100)[:100]            # then re-rank exactly
 
 The pattern is always the same: rank everything by the sketch, keep a shortlist, [[re-rank]] the shortlist with better vectors.
 
-::: widget sketch-recall
+::: widget sketch-recall | Re-ranking a sketch shortlist
 **Pick the shortlist size** Recall of the true top 10 after re-ranking, against the size of the sketch. All three lines use the same number of stored bits per vector; they differ in which hyperplanes are used and in how the query is treated.
 :::
 

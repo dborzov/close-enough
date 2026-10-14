@@ -14,7 +14,7 @@ Pick $K$ representative vectors, the [codebook]{.def .k-book} $\{\kbook{c_1},\do
 
 This is [[vector quantization]] (VQ).
 
-::: widget vq
+::: widget vq | One codebook: bits against error
 **Slide the bits** Each extra bit doubles $K$. On the right, error on a log scale. In two dimensions each bit roughly halves the error once $K$ is large; the dashed line is that slope.
 :::
 

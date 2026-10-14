@@ -2,7 +2,7 @@
 # requires-python = ">=3.11"
 # dependencies = [
 #   "numpy", "scipy", "torch", "sentence-transformers", "faiss-cpu", "nltk",
-#   "zstandard", "constriction",
+#   "zstandard", "constriction", "pyyaml",
 # ]
 # ///
 """Every number and chart in the book comes from this script.
@@ -22,6 +22,7 @@ import numpy as np
 from scipy.special import erf
 
 from common import OUT, cached, load_data, log, same_book_pairs, splits
+from geometry import SECTIONS as GEO_SECTIONS, alice_slice
 
 RNG = np.random.default_rng(0)
 K = 256
@@ -100,11 +101,6 @@ def sec_props(D):
     rc = (X[i] * X[j]).sum(1)
     rcc = (Xc[i] * Xc[j]).sum(1) / (np.linalg.norm(Xc[i], axis=1) * np.linalg.norm(Xc[j], axis=1))
     alpha = float((Xc[1:] * Xc[:-1]).sum(1)[same[1:]].sum() / (Xc[:-1] ** 2).sum(1)[same[1:]].sum())
-    demo = D["demo"]
-    sim = np.round(demo @ demo.T * 100).astype(int)
-    dc = demo - demo.mean(0)
-    U, S, Vt = np.linalg.svd(dc, full_matrices=False)
-    traj = (dc @ Vt[:2].T).round(4)
     return dict(
         d=int(X.shape[1]),
         n=int(len(X)),
@@ -122,13 +118,7 @@ def sec_props(D):
         coord_kurtosis=float(((Xc[:, Xc.std(0) > 1e-9] / Xc.std(0)[Xc.std(0) > 1e-9]) ** 4).mean() - 3),
         dead_dims=int((Xc.std(0) < 1e-9).sum()),
         rank=int((ev > 1e-10).sum()),
-        moby=dict(
-            sim=sim.tolist(),
-            traj=traj.tolist(),
-            snip=[str(s)[:240] for s in D["demo_texts"]],
-            chapters=json.loads(str(D["chapters"])),
-        ),
-        seqbars=demo[:12, :24].round(4).tolist(),
+        seqbars=X[alice_slice(D)[0][:12], :24].round(4).tolist(),
     )
 
 
@@ -682,7 +672,7 @@ def sec_floats(D):
         }
     u32 = X[db].view(np.uint32).ravel().astype(np.uint64)
     u16 = X[db].astype(np.float16).view(np.uint16).ravel().astype(np.uint64)
-    ex = D["demo"][0, :6]
+    ex = X[alice_slice(D)[0][0], :6]  # the first window of Alice in Wonderland
     return dict(
         tables=out, bitH32=bit_entropy(u32, 32), bitH16=bit_entropy(u16, 16),
         examples=ex.tolist(), bits=[format(int(v), "032b") for v in ex.view(np.uint32)], n_values=int(u32.size),
@@ -902,7 +892,7 @@ def main():
                       window=48, stride=24, date=time.strftime("%Y-%m-%d"))}
     for name, fn in (("props", sec_props), ("lossy", sec_lossy), ("sweep", sec_sweep),
                      ("code_entropy", sec_code_entropy), ("lossless", sec_lossless), ("ladder", sec_ladder), ("floats", sec_floats),
-                     ("lsh", sec_lsh), ("wire", sec_wire)):
+                     ("lsh", sec_lsh), ("wire", sec_wire), *GEO_SECTIONS):
         try:
             R[name] = fn(D, force=name in force or "all" in force)
         except Exception as e:  # noqa: BLE001
@@ -913,6 +903,11 @@ def main():
     tr, db, qm = splits(D)
     R["meta"].update(n_windows=int(len(D["X"])), n_train=int(tr.sum()), n_db=int(db.sum()), n_query_pool=int(qm.sum()),
                      d=int(D["X"].shape[1]))
+    # the interactive figures' own data goes to data/lab/<name>.json, loaded only by the pages that show them
+    (OUT / "lab").mkdir(exist_ok=True)
+    for name in [k for k in R if k.startswith("geo_")]:
+        if isinstance(R[name], dict) and "lab" in R[name]:
+            (OUT / "lab" / f"{name[4:]}.json").write_text(json.dumps(R[name].pop("lab"), separators=(",", ":")))
     (OUT / "results.json").write_text(json.dumps(R))
     log("wrote", OUT / "results.json", f"{(OUT / 'results.json').stat().st_size / 1e3:.0f} kB")
 

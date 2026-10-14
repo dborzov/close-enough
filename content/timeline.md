@@ -6,7 +6,7 @@ goal: Two groups worked on two problems for decades and barely spoke. Around 201
 
 One group wanted computers to have a sense of *meaning*: to know that "car" and "automobile" are the same thing. Another, mostly in signal processing and algorithms, wanted to find the *closest point* in a big pile of points without checking every one.
 
-::: widget timeline narrow
+::: widget timeline narrow | Seventy years of vector search
 **Filter by thread** [Representations]{.k-book} is the story of Part 1. [Search algorithms]{.k-vec} is Parts 2 to 5. [Industry]{.k-dec} is Part 7.
 :::
 

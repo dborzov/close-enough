@@ -6,7 +6,7 @@ goal: Do big feeds use vector search, or does a ranking model replace it? Both, 
 
 ## Cheap narrows, expensive orders
 
-::: svg funnel
+::: svg funnel | The retrieval funnel
 **The funnel** Cheap methods narrow billions of items to thousands; expensive methods order the thousands. ANN lives in the first stage.
 :::
 

@@ -30,7 +30,7 @@ Everything a model can do is on the left of that formula: **make σ smaller.** E
 
 ## Look at the actual distribution
 
-::: widget pdf-models
+::: widget pdf-models | Probability models for a coordinate
 **Choose what is being coded and how it is modelled** Bars are the measured histogram, pooled over every coordinate of every held-out vector. The line is the model. The readout compares what this model charges with the entropy of the histogram itself; the difference is the KL waste. Try *Laplace*, then *flat*, then drag the width.
 :::
 

@@ -43,8 +43,43 @@ Open with `::: name optional title`, close with `:::`.
 | `cards`, `cards three`, `cards four` | a list becomes cards; start each item with a bold title |
 | `steps` | a numbered list becomes a stepped path |
 | `cols`, `wide` | two columns; a full-width block (for wide tables) |
-| `widget name` | an interactive figure from `theme/js/widgets/`; the body is its caption |
-| `svg name` | a diagram from `figures/name.svg`; the body is its caption |
+| `widget name \| A short name` | an interactive figure from `theme/js/widgets/`; the body is its caption. The name (required) is shown after the figure number and in the browse page |
+| `svg name \| A short name` | a diagram from `figures/name.svg`; the body is its caption |
+
+## Experiments
+
+An experiment is a figure that leads a section: shown first with no explanation, then explained by the prose, then shown again with a guided reading. Write the first look as
+
+```markdown
+:::: lab meaning-map | The meaning map
+::: question
+The one question the experiment answers.
+:::
+::: recipe
+1. Each step of what was done to the data, with the parameters as `code`.
+:::
+::: legend
+- !dot **One dot** is one passage. Start an item with a glyph to draw it beside the text.
+:::
+::: look
+- What to look for before reading on.
+:::
+::::
+```
+
+and the second look, anywhere later in the book, as
+
+```markdown
+:::: lab meaning-map again
+::: reading
+1. {books} **What this step shows.** Clicking the step calls the widget's `books` view.
+:::
+::::
+```
+
+The build numbers experiments per page ("Experiment 1.5A"), and a second look carries the first look's question, recipe and key in a folded panel. A third look names itself (`:::: lab alice-walk prediction`). Glyphs: `dot ring hollow dots line thick dash bar cell x y colour arrow ramp hover`.
+
+An experiment's widget calls `CE.lib.withLab(el, '<data>', build)` to load `data/lab/<data>.json` (written by `experiments/geometry.py`), and `CE.lib.lab(el, {view: fn})` to wire up the reading steps. `page.html?show=<figure id>:<view>` opens a page with a step already selected.
 
 A fenced block with the language `score` draws a scorecard strip (`good`, `ok` or `bad`, then `label | value` per line).
 A code fence may carry a title: ` ```python Title | right-hand label `.
@@ -59,3 +94,7 @@ CE.widget('my-figure', el => { el.innerHTML = '…'; /* draw */ });
 
 Helpers (canvas setup, an SVG chart kit, tooltips, the theme colours) are in `theme/js/lib.js`.
 A file that mentions `DATA.` gets `data/results.json` loaded on the pages that use it.
+
+## The browse page
+
+`browse.html` is generated: every experiment, figure, diagram, box (key idea, measured, pitfall, in practice, exercise, checkpoint) and titled code block, with a link to its place. The same list feeds the search in the contents overlay. Nothing to maintain by hand; a box's title (`::: warn The curse`) becomes its entry title.

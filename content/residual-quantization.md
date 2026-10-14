@@ -32,7 +32,7 @@ def additive_decode(codes, codebooks):
 
 Greedy is cheap: $O(MKd)$, the same order as PQ. But it is not optimal.
 
-::: widget rq-greedy
+::: widget rq-greedy | Greedy residual quantization
 **Drag the target** The dashed [gold]{style="color:var(--cb2)"} path is greedy; the solid [mint]{.k-dec} path is the best of all 64 combinations. Greedy commits to the closest first arrow even when a slightly worse first arrow would let the smaller arrows land closer.
 :::
 

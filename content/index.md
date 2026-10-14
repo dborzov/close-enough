@@ -8,11 +8,11 @@ goal: A visual primer on embeddings, vector search, and the mathematics of compr
 <div class="kicker"><b class="k-vec">embeddings</b> · <b class="k-q">vector search</b> · <b class="k-book">quantization</b> · <b class="k-bits">lossless codecs</b></div>
 <h1>Close <span class="g">Enough</span></h1>
 <p class="dek">A visual primer on how machines turn meaning into points in space, how they find the nearest points among billions, and how few bits a point really needs.</p>
-<div class="byline"><span>44 short pages</span><span>about 35 interactive figures</span><span>every number measured on real embeddings</span><span>numpy sketches throughout</span></div>
+<div class="byline"><span>45 short pages</span><span>about 40 interactive figures</span><span>every number measured on real embeddings</span><span>numpy sketches throughout</span></div>
 <div id="continue"></div>
 </div>
 
-::: widget nn-hero
+::: widget nn-hero | Nearest neighbours of a drifting query
 **The whole field in one picture** A query (the star) drifts through a cloud of embedded items, always linked to its six nearest neighbours. Part 1 is about where the points come from, Part 2 about finding the neighbours quickly, and Parts 3 to 6 about storing the points in far fewer bits than they arrive in.
 :::
 

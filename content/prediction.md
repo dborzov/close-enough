@@ -14,7 +14,7 @@ $$ \kres{\sigma_{\text{after}}} \;=\; \sigma\,\sqrt{1-\rho^2} \qquad\Longrightar
 
 The energy ratio $1/(1-\rho^2)$ is the classical [[prediction gain]].
 
-::: widget cond-pdf
+::: widget cond-pdf | What a known neighbour saves
 **Slide ρ** The wide curve is a coordinate on its own; the narrow one is the same coordinate once a correlated value is known. The saving in bits is the log of the ratio of widths.
 :::
 
@@ -68,7 +68,7 @@ In **lossy** predictive coding the decoder only has reconstructions, so the enco
 Predict from $\hat x_{t-1}$, never from $x_{t-1}$. If the encoder predicts from the original and the decoder from its approximation, they disagree a little at every step and the disagreement accumulates. That failure is called *drift*.
 :::
 
-::: widget predictive
+::: widget predictive | Quantizing prediction errors
 **The lossy case, in two dimensions** The same 4 bits per step either way: a 16-entry codebook for the vectors themselves, or for the prediction errors. [Yellow]{.k-vec}: the true path. [Mint]{.k-dec}: the reconstruction. [Red]{.k-res}: the error. Diamonds are [[keyframes]], coded independently every 16 steps. Slide ρ down to 0.5 and the advantage evaporates.
 :::
 

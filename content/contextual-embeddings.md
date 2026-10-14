@@ -12,7 +12,7 @@ That solves the jaguar problem. It does not yet give us one vector per passage.
 
 ## From token vectors to one embedding
 
-::: svg embed-pipeline
+::: svg embed-pipeline | Inside a text embedding model
 **The pipeline** A text embedding model reuses an LLM-style backbone end to end, not just its first layer. The blue box is where word2vec-era vectors live; the yellow box is what an embedding API returns.
 :::
 

@@ -16,13 +16,13 @@ The code for $x$ is the tuple $(\kcode{i_1}, \dots, \kcode{i_M})$: $M \log_2 K$ 
 - **8 B**{.k-code} per code
 :::
 
-::: widget codebook-hero
+::: widget codebook-hero | Three codebooks that add up
 **Drag the yellow point** Three [[codebooks]] of four arrows each: big, medium, small. Pick one arrow from each and chain them. Only 12 arrows are stored, yet 4 × 4 × 4 = 64 grey points are reachable.
 :::
 
 Now the smallest interesting case with data: two codebooks, [A]{.k-book} and [B]{style="color:var(--cb2)"}, four arrows each.
 
-::: widget sum-trick
+::: widget sum-trick | Sums of codewords
 **Drag the arrow tips** Each mint dot is Aᵢ + Bⱼ, so moving one arrow moves four dots at once. Then switch to the product constraint and press *Fit*: the sums are forced onto an axis-aligned grid, which wastes points on a tilted cloud.
 :::
 

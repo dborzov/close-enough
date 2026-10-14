@@ -8,7 +8,7 @@ goal: Step back from algorithms. The most useful single axis for placing a compr
 
 Video codecs are the classic deliberate asymmetry: a film is encoded once, slowly, and decoded millions of times. Vector indexes have the same shape ([[@marginalia]]). Additive codebooks are the vector-search version of that bargain.
 
-::: widget method-map
+::: widget method-map | Compression methods by encode and decode work
 **A qualitative map** Horizontal: work to encode one vector. Vertical: work to decode or score one. Dot size: error at a tight budget (bigger is worse). A ring means the method needs the vectors in sequence order. Positions are judgement calls informed by the measurements, not measurements.
 :::
 

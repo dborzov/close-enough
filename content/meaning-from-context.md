@@ -47,7 +47,7 @@ Two things made it famous:
 - **Speed.** It trained on billions of words on one machine.
 - **Directions that mean something.** The step from "man" to "woman" is roughly the same vector as from "king" to "queen".
 
-::: widget word-space
+::: widget word-space | A toy word space
 **Drag the star, or tap a word** A hand-placed two-dimensional toy, not a real model. Real embeddings have hundreds of dimensions but the logic is the same: similar items cluster, and consistent offsets (gender, royalty, age) act like directions you can add. Try the analogy button, then switch the distance to cosine and see which neighbours change.
 :::
 
