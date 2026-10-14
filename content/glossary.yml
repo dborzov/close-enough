@@ -616,3 +616,15 @@ importance-sampling:
   page: magicpig
   group: Sampling
 
+unbiased:
+  term: unbiased
+  aliases: [unbiased estimator, unbiased estimate]
+  short: An estimate whose average over many tries equals the true value. Its errors are noise that shrinks with more samples, not a lean in one direction.
+  page: magicpig
+  group: Sampling
+rope:
+  term: RoPE
+  aliases: [rotary position embeddings, rotary embeddings]
+  short: Rotary position embeddings. Each pair of coordinates of a query or key is rotated by an angle proportional to the token's position, so the dot product depends on relative position.
+  page: magicpig
+  group: Systems

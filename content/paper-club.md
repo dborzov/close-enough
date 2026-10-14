@@ -27,22 +27,24 @@ Papers in this field are written to be accepted, not to be understood by the nex
 A paper on arXiv has been checked by its authors and, at best, by three reviewers on a deadline. It is a claim with evidence attached, not a result. When we disagree with a paper we show the arithmetic, and when we cannot tell, we say that too.
 :::
 
-## How a chapter is laid out
+## How a chapter is told
+
+Each chapter is a story, not a summary. It follows the paper's argument as a chain of questions, and each step should make you want the next.
 
 ::: steps
-1. **The paper in one paragraph.** What problem, what idea, what result, and where it was published.
-2. **Why we are reading it.** The pages of this book it touches.
-3. **The ideas, one at a time.** Each restated in our notation, with a figure. Where the paper's derivation is sound and classical, we say so and move on.
-4. **Measured.** Our own re-run of the claims we can reach, on open models and the same Gutenberg books as the rest of the book.
-5. **Raised eyebrows.** A numbered list of what we would ask the authors.
-6. **What it suggests.** The big picture: what changes in how we think about embeddings, search or compression.
+1. **A hook.** A puzzle or a number that makes the problem feel real, before any notation.
+2. **The idea, played with.** A toy you can drag, small enough to see the whole mechanism, before the formula that names it.
+3. **The catch.** Every good idea runs into a wall; the wall is what motivates the next idea.
+4. **The real thing.** The same picture on real vectors, re-measured by us on an open model.
+5. **Raised eyebrows.** What we would ask the authors, each with a one-line verdict.
+6. **What it suggests.** What changes in how we think about embeddings, search or compression.
 :::
 
 ## The papers
 
 ::: cards
-- **[MagicPIG: LSH sampling for efficient LLM generation](@magicpig)**{.k-code}
-  Chen et al., 2024 (ICLR 2025). Attention over the [[KV cache]] is a weighted average, so approximating it is an *estimation* problem, not a search problem. [[SimHash]] buckets turn out to be a sampler with a known probability. Touches Parts 1, 5 and 7.
+- **[MagicPIG: don't pick the tallest](@magicpig)**{.k-code}
+  Chen et al., 2024 (ICLR 2025). Fast attention reads only the top-scoring keys, which is like estimating average height from the tallest people. Sample instead, and let [[SimHash]] tell you the odds. Touches Parts 1, 5 and 7.
 :::
 
 ::: check
