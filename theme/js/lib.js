@@ -133,7 +133,9 @@
       return new Promise((res, rej) => {
         const first = !waiting[name]; (waiting[name] = waiting[name] || []).push(res);
         if (!first) return;
-        const s = document.createElement('script'); s.src = 'assets/lab/' + name + '.js'; s.async = true;
+        const s = document.createElement('script');
+        const version = window.BOOK && window.BOOK.labVersions && window.BOOK.labVersions[name];
+        s.src = 'assets/lab/' + name + '.js' + (version ? '?v=' + version : ''); s.async = true;
         s.onerror = () => rej(new Error('could not load the data for this experiment')); document.head.appendChild(s);
       });
     },

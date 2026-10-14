@@ -13,6 +13,7 @@ See content/README.md for the authoring syntax.
 from __future__ import annotations
 
 import html
+import hashlib
 import json
 import re
 import shutil
@@ -735,6 +736,8 @@ def build():
         order=[p["slug"] for p in PAGES],
         items=[[i["kind"], i["slug"], i["anchor"], with_math(i["title"] or i["text"][:70], False), i.get("labid", i.get("fig", "")), with_math(i["text"][:200], False)] for i in ITEMS],
         kinds=KIND_ONE,
+        labVersions={f.stem: hashlib.sha256(f.read_bytes()).hexdigest()[:12]
+                     for f in sorted((DIST / "assets" / "lab").glob("*.js"))},
         terms={tid: dict(term=t["term"], short=t["short_html"], page=t.get("page"), color=t.get("color", "ink"),
                          aka=[a for a in t.get("aliases", [])][:3]) for tid, t in GLOSSARY.items()},
     )
@@ -752,6 +755,15 @@ def build():
              goal_html=f"Everything in the book that is not running prose, by kind: {nlab} experiments, every figure and diagram, the key ideas, measured results, pitfalls and checkpoints. Each links to its place in the text.",
              minutes=5, body=browse_page(), scripts=[], needs_data=False, layout="page glossary browse", _state=dict(fig=0))
     (DIST / "browse.html").write_text(page_html(b, tpl, PAGES[-1], None))
+    # New HTML must not reuse a previous deployment's navigation, CSS or widget code.
+    # Content hashes are deterministic, so unchanged assets still benefit from caching.
+    versions = {str(f.relative_to(DIST)): hashlib.sha256(f.read_bytes()).hexdigest()[:12]
+                for f in (DIST / "assets").rglob("*") if f.is_file()}
+    def versioned_asset(m):
+        path = m.group(2)
+        return f'{m.group(1)}{path}?v={versions[path]}{m.group(3)}' if path in versions else m.group(0)
+    for page in DIST.glob("*.html"):
+        page.write_text(re.sub(r'((?:src|href)=")(assets/[^"?#]+)(")', versioned_asset, page.read_text()))
     (DIST / ".nojekyll").write_text("")
     words = sum(len(re.findall(r"\w+", p["_src"])) for p in PAGES)
     print(f"built {len(PAGES)} pages + glossary ({len(GLOSSARY)} terms), {len(MATH)} formulas, ~{words:,} words -> {DIST}")
