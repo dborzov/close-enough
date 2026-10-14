@@ -429,7 +429,8 @@ def page_html(p: dict, tpl: str, prev_p, next_p) -> str:
         scripts = '<script defer src="assets/js/lib.js"></script>' + scripts
     return fill(
         tpl,
-        title=html.escape(p["title"]), book=html.escape(BOOK["title"]), desc=html.escape(re.sub(r"<[^>]+>", "", p["goal_html"])),
+        title=html.escape(p["title"]), book=html.escape(BOOK["title"]),
+        doc_title=html.escape(BOOK["title"] + ": " + BOOK["subtitle"] if p["slug"] == "index" else f'{p["title"]} · {BOOK["title"]}'), desc=html.escape(re.sub(r"<[^>]+>", "", p["goal_html"])),
         slug=p["slug"], num=p["num"], part_title=html.escape(part["title"]), part_n=part.get("n", 0),
         part_label=f"Part {part['n']}" if part.get("n") is not None else "", color=part["color"],
         kicker=html.escape(p.get("kicker", part["title"])), goal=p["goal_html"], minutes=p["minutes"],
