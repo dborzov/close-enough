@@ -474,6 +474,10 @@ def build():
         shutil.copytree(THEME / "img", DIST / "assets" / "img")
     (DIST / "assets" / "css" / "pygments.css").write_text("")  # token colours live in theme css
     (DIST / "assets" / "data.js").write_text("window.DATA=" + json.dumps(RESULTS, separators=(",", ":")) + ";")
+    # each experiment's data is a separate script, loaded by its figure when it scrolls into view
+    (DIST / "assets" / "lab").mkdir()
+    for f in sorted((ROOT / "data" / "lab").glob("*.json")):
+        (DIST / "assets" / "lab" / f"{f.stem}.js").write_text(f"CE.labData.put({json.dumps(f.stem)},{f.read_text()});")
     manifest = dict(
         title=BOOK["title"], subtitle=BOOK["subtitle"],
         parts=[dict(n=pt.get("n"), title=pt["title"], color=pt["color"], blurb=pt.get("blurb", ""), pages=pt["pages"]) for pt in BOOK["parts"]],

@@ -1,7 +1,7 @@
 title: Close Enough
 subtitle: A visual primer on embeddings, vector search, and the mathematics of compressing vectors
 author: Dima Borzov
-glossary_groups: [Embeddings, Search, Hashing, Quantization, Information theory, Systems]
+glossary_groups: [Embeddings, Search, Hashing, Quantization, Information theory, Systems, Sampling]
 
 # Reading order. Each slug is content/<slug>.md. "color" is a concept-colour token from theme/css/base.css.
 parts:
@@ -50,3 +50,9 @@ parts:
     color: k-dec
     blurb: How products assemble these pieces, and where the same math reappears inside transformers.
     pages: [in-practice, the-funnel, rhymes, big-picture, recap]
+
+  - n: 8
+    title: Paper club
+    color: k-q
+    blurb: One paper per chapter, read against everything above. What it tells us about vectors, what we re-measured ourselves, and what looks off.
+    pages: [paper-club, magicpig]
