@@ -595,3 +595,24 @@ vector-db:
   short: A service that wraps ANN indexes in storage, an API, metadata filtering, replication and scaling.
   page: in-practice
   group: Systems
+
+# ---------------------------------------------------------------- Sampling
+attention-sink:
+  term: attention sink
+  aliases: [attention sinks, sink token]
+  short: The first token of a sequence, which many attention heads point at when nothing else matches. Its key barely depends on the token, and its value is small. A built-in "none of the above".
+  page: magicpig
+  group: Systems
+sparse-attention:
+  term: TopK attention
+  aliases: [sparse attention, top-k attention]
+  short: Approximate attention by reading only the keys with the highest scores and renormalizing over them. Biased whenever the rest of the weight is not negligible.
+  page: magicpig
+  group: Sampling
+importance-sampling:
+  term: importance sampling
+  aliases: [self-normalized importance sampling]
+  short: Estimate an average by sampling from a convenient distribution u instead of the true one w, and weighting each sample by w/u to undo the difference.
+  page: magicpig
+  group: Sampling
+
