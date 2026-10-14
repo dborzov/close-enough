@@ -24,7 +24,7 @@ During generation, every new token's [query]{.k-q} is compared with the [keys]{.
 - **SimHash, the S-curve and the memory bill**{.k-code}
   The sampler is exactly the $k$-bit, $L$-table construction from Part 5, with one twist. The memory bill from [[@lsh-amplification]] comes due, in full.
 - **Anisotropy and centring**{.k-vec}
-  Keys and queries sit in narrow cones, like the embeddings in [[@know-your-data]]. Subtracting the mean, the one-line fix every chapter of Part 3 applies first, decides whether the method works at all.
+  Keys and queries sit in narrow cones, like the embeddings in [[@shape-of-the-cloud]] and [[@know-your-data]]. Subtracting the mean, the one-line fix every chapter of Part 3 applies first, decides whether the method works at all.
 - **Estimators and bits**{.k-bits}
   Unbiased estimators from a few random bits ([[@bits-as-sketches]]), $-\log u$ as a correction measured in surprisal, and the [[entropy]] of the attention distribution as the number of keys that matter.
 :::
@@ -61,7 +61,7 @@ The paper's Appendix F explains the bias with a zoo: average food per animal, es
 
 Why not just find the TopK keys with an ANN index? Section 3 of the paper answers with geometry, and it is the most interesting part of the paper for this book.
 
-::: widget pig-cone
+::: widget pig-cone | Two cones and a sink
 **Switch between the views** We recorded every key and query of Qwen2.5-1.5B-Instruct reading the first 16,384 tokens of Jane Austen's *Emma*. *One head* shows how the keys and the queries spread around the mean key direction. *One query* shows its cosine with every key, before and after subtracting the mean key. *All layers* repeats the measurement through the network.
 :::
 
@@ -70,7 +70,7 @@ The paper makes three observations about Llama, and on a different model, a diff
 ::: measured The geometry, re-measured
 On Qwen2.5-1.5B-Instruct, averaged over 28 layers:
 
-- **The keys sit in a narrow cone.** A key's cosine with the mean key is **0.67** on average (0.54 to 1.00 by layer). Random directions in 128 dimensions would give about 0. This is [[anisotropy]], exactly as in sentence embeddings.
+- **The keys sit in a narrow cone.** A key's cosine with the mean key is **0.67** on average (0.54 to 1.00 by layer). Random directions in 128 dimensions would give about 0. This is [[anisotropy]], exactly as in the sentence embeddings of [[@shape-of-the-cloud]].
 - **The queries point away from it.** A query's cosine with the mean key is **−0.24** on average, down to −0.45. For an ANN index the queries come from a different distribution than the data.
 - **The first token's key is a constant.** Feed 32 different single tokens: the key at position 0 has mutual cosine **0.99** across them. The mean key direction is just as stable: **0.97** across 50 passages from 18 books. The sink key points *against* the mean key in most layers (cosine down to −0.61; the paper reports −0.8 to −0.9 on Llama), queries lean *toward* it (+0.46), and its value vector is short: **0.35×** the length of an average value.
 :::
@@ -110,7 +110,7 @@ $$ \kcode{u_i} \;=\; 1 - (1-p_i^{K})^{L} - L\,p_i^{K}(1-p_i^{K})^{L-1}, \qquad p
 
 The first two terms are the familiar S-curve. The third removes keys that collide in exactly one table, which makes the curve steeper (the paper says requiring two hits "greatly improves accuracy").
 
-::: widget pig-scurve
+::: widget pig-scurve | The sampling curve
 **Set K and L, and switch between one and two tables** The curve is the probability that a key is sampled, given its cosine with the query. Behind it: one real query's 16,384 centred keys (grey, how many sit at each cosine) and its attention weight (green, where the mass sits; the spike is the sink). The readout integrates the two: how many keys you read, and how much of the attention mass sits on keys you read.
 :::
 
@@ -154,7 +154,7 @@ The index is larger than the data it indexes. That is fine for the paper's goal:
 
 We re-implemented Algorithm 1 directly from the paper: centred keys, SimHash with one set of random hyperplanes shared by all heads, sampling on at least two collisions, the $1/u$ correction, and the first 4 and last 64 tokens kept exact. We ran it on the 64 last positions of the same 16k-token context, for every head of every layer (21,504 attention rows). Against it, three *oracles* that are allowed to see every score: TopK, sampling from $w$, and a hybrid that keeps the top half of the budget exactly and samples the tail.
 
-::: widget pig-estimators
+::: widget pig-estimators | Estimators at a budget
 **Turn centring and the exact sink and local tokens on and off** Curves: the oracles at budgets from 0.1% to 20% of the keys. Diamonds: MagicPIG at the paper's three settings. Square: the sink and the 64 most recent tokens alone.
 :::
 
