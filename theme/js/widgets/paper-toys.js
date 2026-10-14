@@ -176,7 +176,7 @@ CE.widget('pig-memory', el => {
   const q = mk(el, `<div class="chart-title">What one key–value pair costs, per layer and KV head</div><div class="chart-sub">Llama-3.1-8B: head dimension 128, bfloat16 · totals for 96k tokens × 32 layers × 8 KV heads</div><div class="membars" style="padding:1.1rem 1.2rem;display:grid;gap:.75rem"></div><div class="controls"><label>bits per table K <input type="range" id="pm-k" min="6" max="12" value="10"><output id="pm-kv"></output></label><label>tables L <input type="range" id="pm-l" min="25" max="400" step="5" value="150"><output id="pm-lv"></output></label></div><div class="readout"></div>`);
   const sk = q('#pm-k'), sl = q('#pm-l'), host = q('.membars');
   function draw() {
-    const K = +sk.value, Lt = +sl.value; q('#pm-kv').textContent = 'K = ' + K; q('#pm-lv').textContent = 'L = ' + Lt;
+    const K = +sk.value, Lt = +sl.value; q('#pm-kv').textContent = K; q('#pm-lv').textContent = Lt;
     const rows = [['the key and value themselves', 512, 'k-dec'], [`${Lt} table entries × 4 bytes`, 4 * Lt, 'k-code'], [`optional packed codes: ${(K * Lt).toLocaleString('en-US')} bits`, K * Lt / 8, 'k-bits']];
     const mx = Math.max(...rows.map(r => r[1]));
     host.innerHTML = rows.map(([t, b, c]) => `<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:.8rem;align-items:center;font-size:.86rem"><span>${t}</span><span style="display:flex;align-items:center;gap:.5rem;min-width:0"><span style="height:1.3rem;border-radius:4px;background:var(--${c});width:${(b / mx * 85).toFixed(1)}%;min-width:2px;transition:width .25s"></span><b style="font-family:var(--f-mono);font-size:.8rem;white-space:nowrap">${Math.round(b)} B</b></span></div>`).join('');
