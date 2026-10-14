@@ -1,0 +1,33 @@
+<svg class="dia" viewBox="0 0 900 300" role="img" aria-label="Marginalia architecture: RAM index with IVF plus 16-byte RQ codes, SSD re-rank tier with int8 vectors, and a lossless archive.">
+    <g>
+      <rect x="20" y="40" width="270" height="200" rx="14" class="box" style="stroke:var(--k-q);stroke-width:2"/>
+      <text x="40" y="72" class="t-big" style="fill:var(--k-q)">① RAM: search index</text>
+      <text x="40" y="100" class="t-ink">IVF65536,RQ16x8, beam 4</text>
+      <text x="40" y="122">16 B code + 4 B id</text>
+      <text x="40" y="144">300 M × 20 B ≈ 6 GB</text>
+      <text x="40" y="166">ADC over ~64 lists</text>
+      <text x="40" y="196" class="t-hand" style="fill:var(--k-enc)">encoder-heavy: built offline</text>
+    </g>
+    <path class="ln" d="M290 140 H 330" marker-end="url(#ah)"/>
+    <text x="310" y="130" text-anchor="middle">top 200</text>
+    <g>
+      <rect x="330" y="40" width="250" height="200" rx="14" class="box" style="stroke:var(--k-dec);stroke-width:2"/>
+      <text x="350" y="72" class="t-big" style="fill:var(--k-dec)">② SSD: re-rank tier</text>
+      <text x="350" y="100" class="t-ink">int8 vectors, 384 B</text>
+      <text x="350" y="122">exact-ish scores for 200</text>
+      <text x="350" y="144">candidates per query</text>
+      <text x="350" y="196" class="t-hand" style="fill:var(--k-dec)">cheap both ways</text>
+    </g>
+    <path class="ln" d="M580 140 H 620" marker-end="url(#ah)"/>
+    <text x="600" y="130" text-anchor="middle">rebuild</text>
+    <g>
+      <rect x="620" y="40" width="260" height="200" rx="14" class="box" style="stroke:var(--k-bits);stroke-width:2"/>
+      <text x="640" y="72" class="t-big" style="fill:var(--k-bits)">③ Object store: archive</text>
+      <text x="640" y="100" class="t-ink">int8 exact, per-book files</text>
+      <text x="640" y="122">bell curve per coordinate</text>
+      <text x="640" y="144">+ triangular prediction</text>
+      <text x="640" y="166">+ previous window, rANS</text>
+      <text x="640" y="196" class="t-hand" style="fill:var(--k-bits)">lossless, sequential</text>
+    </g>
+    <text x="450" y="280" text-anchor="middle">the ids are (book, offset): consecutive windows get consecutive ids, so even the ids compress</text>
+  </svg>

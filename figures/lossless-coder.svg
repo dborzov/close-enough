@@ -1,0 +1,22 @@
+<svg class="dia" viewBox="0 0 920 270" role="img" aria-label="Lossless coder: the RQ code gives a prediction; the exact integer vector minus the rounded prediction is a small residual, entropy coded. The decoder adds them back.">
+    <rect class="box" x="10" y="100" width="150" height="70" rx="10"/>
+    <text x="85" y="128" text-anchor="middle" class="t-big" style="fill:var(--k-vec)">x (exact)</text>
+    <text x="85" y="150" text-anchor="middle">int8 / fixed-point</text>
+    <path class="ln" d="M160 120 H 230" marker-end="url(#ah)"/>
+    <rect class="box" x="230" y="30" width="170" height="70" rx="10" style="stroke:var(--k-code);stroke-width:2"/>
+    <text x="315" y="58" text-anchor="middle" class="t-big" style="fill:var(--k-code)">RQ code</text>
+    <text x="315" y="80" text-anchor="middle">8m bits, any encoder</text>
+    <path class="ln" d="M400 65 H 470" marker-end="url(#ah)"/>
+    <rect class="box" x="470" y="30" width="170" height="70" rx="10"/>
+    <text x="555" y="58" text-anchor="middle" class="t-big" style="fill:var(--k-dec)">prediction</text>
+    <text x="555" y="80" text-anchor="middle">round(x̂ / step)</text>
+    <path class="ln" d="M160 150 C 420 200, 470 200, 600 170" marker-end="url(#ah)"/>
+    <path class="ln" d="M555 100 L 600 150" marker-end="url(#ah)"/>
+    <circle cx="615" cy="160" r="16" class="box" style="stroke:var(--k-res)"/>
+    <text x="615" y="165" text-anchor="middle" class="t-big" style="fill:var(--k-res)">−</text>
+    <path class="ln" d="M631 160 H 690" marker-end="url(#ah)"/>
+    <rect class="box" x="690" y="125" width="220" height="70" rx="10" style="stroke:var(--k-bits);stroke-width:2"/>
+    <text x="800" y="152" text-anchor="middle" class="t-big" style="fill:var(--k-bits)">entropy-coded residual</text>
+    <text x="800" y="174" text-anchor="middle">small ints, peaked at 0 (rANS)</text>
+    <text x="460" y="245" text-anchor="middle" class="t-hand" style="fill:var(--k-dec)">decoder: rebuild the same prediction from the code, add the residual → bit-exact x</text>
+  </svg>

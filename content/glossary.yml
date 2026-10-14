@@ -1,0 +1,597 @@
+# One entry per term. "short" is the reminder shown in the hover card; "page" is where the book explains it.
+# The first mention of "term" or any alias on a page is linked automatically (set auto: false to opt out;
+# authors can always link by hand with [[id]] or [[id|shown text]]).
+
+# ---------------------------------------------------------------- Embeddings
+embedding:
+  term: embedding
+  aliases: [embeddings, dense embedding, embedding vector]
+  short: A list of a few hundred to a few thousand numbers that places an item (text, image, user) in a space where nearby points mean similar things.
+  page: map
+  group: Embeddings
+  color: vec
+distributional-hypothesis:
+  term: distributional hypothesis
+  short: Words that appear in similar contexts have similar meanings. The founding idea behind every embedding method.
+  page: meaning-from-context
+  group: Embeddings
+  color: vec
+bm25:
+  term: BM25
+  short: The classic keyword-ranking formula (term frequency, rarity, document length). Each vocabulary word is its own dimension, so synonyms do not match.
+  page: meaning-from-context
+  group: Embeddings
+lsa:
+  term: LSA
+  aliases: [Latent Semantic Analysis]
+  short: Latent Semantic Analysis (1990). Compress the word–document count matrix with SVD; the first dense semantic vectors.
+  page: meaning-from-context
+  group: Embeddings
+word2vec:
+  term: word2vec
+  short: A table with one learned vector per word, trained (2013) to tell a word's real neighbours in text from random words.
+  page: meaning-from-context
+  group: Embeddings
+  color: vec
+pooling:
+  term: pooling
+  aliases: [mean-pooling, mean pooling]
+  short: Turning one vector per token into one vector per text, usually by averaging them or taking a special token's state.
+  page: contextual-embeddings
+  group: Embeddings
+contrastive:
+  term: contrastive training
+  aliases: [contrastive learning, contrastive objective, contrastively]
+  short: Train on pairs that should match. Pull each pair's vectors together and push every other pairing in the batch apart.
+  page: contrastive-training
+  group: Embeddings
+  color: vec
+infonce:
+  term: InfoNCE
+  short: The loss behind most embedding models. A cross-entropy over a batch that asks "which of these B passages belongs to my query?"
+  page: contrastive-training
+  group: Embeddings
+hard-negative:
+  term: hard negative
+  aliases: [hard negatives]
+  short: A training example that looks relevant but is not. It teaches the model the fine distinctions that random negatives never test.
+  page: contrastive-training
+  group: Embeddings
+bi-encoder:
+  term: bi-encoder
+  aliases: [bi-encoders]
+  short: A model that embeds the query and the document separately, so document vectors can be computed once and indexed.
+  page: contrastive-training
+  group: Embeddings
+cross-encoder:
+  term: cross-encoder
+  aliases: [cross-encoders]
+  short: A model that reads query and document together and outputs one score. Accurate, but nothing can be precomputed, so it only re-ranks a shortlist.
+  page: contrastive-training
+  group: Embeddings
+matryoshka:
+  term: Matryoshka embeddings
+  aliases: [Matryoshka]
+  short: Embeddings trained so that the first k coordinates are already a usable embedding, which lets you truncate to save space.
+  page: contrastive-training
+  group: Embeddings
+mteb:
+  term: MTEB
+  short: The Massive Text Embedding Benchmark. The standard leaderboard for comparing embedding models.
+  page: contrastive-training
+  group: Embeddings
+anisotropy:
+  term: anisotropy
+  aliases: [anisotropic]
+  short: Embeddings crowding into a narrow cone, so even unrelated pairs have a clearly positive cosine. Subtracting the mean vector removes most of it.
+  page: geometry-of-embeddings
+  group: Embeddings
+hubness:
+  term: hubness
+  short: In high dimensions a few points become a nearest neighbour of very many others.
+  page: geometry-of-embeddings
+  group: Embeddings
+intrinsic-dimension:
+  term: intrinsic dimension
+  short: How many numbers you really need to locate a point on the surface the data lies near. Far fewer than the embedding's nominal dimension.
+  page: geometry-of-embeddings
+  group: Embeddings
+superposition:
+  term: superposition
+  short: A network packing more concepts than it has dimensions by letting them overlap as almost-orthogonal directions.
+  page: geometry-of-embeddings
+  group: Embeddings
+
+# ---------------------------------------------------------------- Search
+cosine:
+  term: cosine similarity
+  aliases: [cosine]
+  short: The cosine of the angle between two vectors, $a\cdot b / (\lVert a\rVert\lVert b\rVert)$. For unit vectors it equals the dot product.
+  page: closeness
+  group: Search
+  color: q
+dot-product:
+  term: dot product
+  aliases: [inner product]
+  short: $a \cdot b = \sum_i a_i b_i$. Cares about angle and length. On unit vectors it ranks exactly like cosine and like Euclidean distance.
+  page: closeness
+  group: Search
+  color: q
+l2:
+  term: L2
+  aliases: [Euclidean distance]
+  short: Straight-line distance $\lVert a-b\rVert$. For unit vectors, $\lVert a-b\rVert^2 = 2 - 2\,a\cdot b$.
+  page: closeness
+  group: Search
+mips:
+  term: MIPS
+  aliases: [maximum inner product search]
+  short: Maximum inner product search. Nearest-neighbour search when vectors are not normalised, so length matters.
+  page: closeness
+  group: Search
+knn:
+  term: kNN
+  aliases: [k-nearest-neighbour]
+  short: k-nearest-neighbour search. Given a query, return the k stored vectors most similar to it. Exact kNN compares against everything.
+  page: closeness
+  group: Search
+  color: q
+ann:
+  term: ANN
+  aliases: [approximate nearest neighbour]
+  short: Approximate nearest-neighbour search. Look at a small, well-chosen fraction of the data and accept missing a few true neighbours.
+  page: nearest-neighbour-problem
+  group: Search
+  color: q
+recall:
+  term: recall@k
+  aliases: [recall@10, 10-recall@10]
+  short: Of the true k nearest neighbours, the fraction the approximate method returned. The standard quality measure for ANN.
+  page: nearest-neighbour-problem
+  group: Search
+  color: q
+curse:
+  term: curse of dimensionality
+  short: In hundreds of dimensions, distances between random points concentrate around one value, so space-splitting tricks stop pruning.
+  page: closeness
+  group: Search
+kd-tree:
+  term: k-d tree
+  aliases: [k-d trees]
+  short: A tree that splits space one coordinate at a time. Excellent in 2 to 10 dimensions, useless at 768.
+  page: partitioning
+  group: Search
+kmeans:
+  term: k-means
+  aliases: [Lloyd's algorithm]
+  short: "Find K centroids that minimise squared distance to their assigned points by alternating two steps: assign each point to its nearest centroid, move each centroid to the mean of its points."
+  page: partitioning
+  group: Search
+  color: book
+ivf:
+  term: IVF
+  aliases: [inverted file index]
+  short: Inverted file index. Cluster the vectors with k-means, keep one list per cluster, and scan only the few lists nearest the query.
+  page: partitioning
+  group: Search
+  color: book
+nprobe:
+  term: nprobe
+  short: How many IVF lists to scan per query. The knob that trades speed for recall.
+  page: partitioning
+  group: Search
+hnsw:
+  term: HNSW
+  short: Hierarchical Navigable Small World. A layered neighbour graph searched by greedy hops; the default index in most vector databases.
+  page: graphs
+  group: Search
+  color: book
+efsearch:
+  term: efSearch
+  short: The width of the candidate list a graph search keeps. Larger means more distance computations and higher recall.
+  page: graphs
+  group: Search
+diskann:
+  term: DiskANN
+  aliases: [Vamana]
+  short: A graph index (Vamana) laid out to be read from SSD, with only compressed vectors in RAM. Billion-scale search on one machine.
+  page: graphs
+  group: Search
+faiss:
+  term: FAISS
+  aliases: [Faiss]
+  short: Meta's open-source library of index types (Flat, IVF, PQ, HNSW and combinations). A toolkit, not a database.
+  page: index-lab
+  group: Systems
+scann:
+  term: ScaNN
+  short: Google's ANN library. Partitioning plus a quantizer that penalises errors parallel to the vector more than perpendicular ones.
+  page: bells-and-whistles
+  group: Systems
+reranking:
+  term: re-ranking
+  aliases: [rerank, re-rank, reranking, reranker]
+  short: Fetch a shortlist with a cheap, compressed index, then re-score just those candidates with exact vectors or a heavier model.
+  page: napkin-math
+  group: Search
+  color: q
+adc:
+  term: ADC
+  aliases: [asymmetric distance computation]
+  short: Asymmetric distance computation. Keep the query exact, compress the database, and score each code with M table lookups.
+  page: searching-codes
+  group: Search
+  color: q
+
+# ---------------------------------------------------------------- Hashing
+lsh:
+  term: LSH
+  aliases: [locality-sensitive hashing]
+  short: Locality-sensitive hashing. Hash functions built so that close points collide with higher probability than far ones.
+  page: lsh-idea
+  group: Hashing
+  color: code
+simhash:
+  term: SimHash
+  aliases: [random hyperplanes, random-hyperplane]
+  short: LSH for angles. Each bit records which side of a random hyperplane a vector is on; two vectors at angle $\theta$ agree on a bit with probability $1-\theta/\pi$.
+  page: lsh-idea
+  group: Hashing
+  color: code
+minhash:
+  term: MinHash
+  short: LSH for set overlap. The probability that two sets share a min-hash equals their Jaccard similarity. The workhorse of near-duplicate detection.
+  page: lsh-in-practice
+  group: Hashing
+amplification:
+  term: amplification
+  aliases: [AND-OR construction]
+  short: Combine k hash bits with AND to make buckets selective, then L tables with OR to catch misses. Turns a gentle collision curve into a steep S-curve.
+  page: lsh-amplification
+  group: Hashing
+  color: code
+rho:
+  term: LSH exponent ρ
+  auto: false
+  short: $\rho = \ln(1/p_1)/\ln(1/p_2)$. LSH answers a query in about $N^\rho$ work; smaller is better and it is always below 1.
+  page: lsh-amplification
+  group: Hashing
+multiprobe:
+  term: multi-probe LSH
+  aliases: [multi-probe, multiprobe]
+  short: Besides the query's own bucket, also look in buckets that differ in the bits the query was least sure about. Fewer tables for the same recall.
+  page: lsh-in-practice
+  group: Hashing
+hamming:
+  term: Hamming distance
+  aliases: [Hamming]
+  short: The number of positions where two bit strings differ. Computed with XOR and a popcount, among the fastest operations a CPU has.
+  page: bits-as-sketches
+  group: Hashing
+  color: code
+binary-quantization:
+  term: binary quantization
+  aliases: [binary codes, binary quantisation]
+  short: Keep only the sign of each coordinate (1 bit per dimension, 32× smaller than float32) and compare with Hamming distance.
+  page: bits-as-sketches
+  group: Hashing
+  color: code
+rabitq:
+  term: RaBitQ
+  short: A binary code (random rotation, then signs) paired with an unbiased distance estimator that has a proven error bound.
+  page: bits-as-sketches
+  group: Hashing
+jl:
+  term: Johnson–Lindenstrauss lemma
+  aliases: [Johnson–Lindenstrauss]
+  short: Projecting points onto a random lower-dimensional subspace approximately preserves all pairwise distances. The reason random projections work.
+  page: lsh-idea
+  group: Hashing
+
+# ---------------------------------------------------------------- Quantization
+quantization:
+  term: quantization
+  aliases: [quantizer, quantizers]
+  short: Replacing a value (or a whole vector) by the nearest member of a finite set, so that it can be named with a few bits.
+  page: compression-stack
+  group: Quantization
+  color: book
+scalar-quantization:
+  term: scalar quantization
+  aliases: [int8, SQ]
+  short: Round each coordinate separately to one of $2^b$ levels. int8 uses 8 bits per coordinate, 4× smaller than float32.
+  page: scalar-quantization
+  group: Quantization
+  color: book
+vq:
+  term: vector quantization
+  aliases: [VQ]
+  short: Replace a whole vector by the index of its nearest codeword in a learned codebook. $\log_2 K$ bits for a codebook of K entries.
+  page: one-codebook
+  group: Quantization
+  color: book
+codebook:
+  term: codebook
+  aliases: [codebooks, codeword, codewords]
+  short: A list of K representative vectors (codewords). The decoder is a table lookup into it.
+  page: one-codebook
+  group: Quantization
+  color: book
+code:
+  term: code
+  auto: false
+  short: The integers actually stored for a vector, one index per codebook.
+  page: sum-trick
+  group: Quantization
+  color: code
+pq:
+  term: PQ
+  aliases: [product quantization]
+  short: Product quantization. Cut the vector into M blocks and vector-quantize each block with its own small codebook.
+  page: sum-trick
+  group: Quantization
+  color: book
+opq:
+  term: OPQ
+  short: Optimized product quantization. Learn a rotation before PQ so that the blocks are as independent as possible.
+  page: sum-trick
+  group: Quantization
+  color: book
+rq:
+  term: RQ
+  aliases: [residual quantization, RVQ]
+  short: Residual quantization. Quantize the vector, subtract, quantize what is left, and repeat. Each stage's codebook uses all dimensions.
+  page: residual-quantization
+  group: Quantization
+  color: book
+residual:
+  term: residual
+  aliases: [residuals]
+  short: What is left after subtracting the current approximation or prediction. The part that still has to be described.
+  page: residual-quantization
+  group: Quantization
+  color: res
+aq:
+  term: additive quantization
+  aliases: [AQ, additive codebooks]
+  short: Approximate a vector by a sum of one codeword from each of M unconstrained codebooks. Finding the best combination is the hard part.
+  page: encoding-is-hard
+  group: Quantization
+  color: book
+beam-search:
+  term: beam search
+  short: A greedy search that keeps the B best partial solutions at every step instead of one.
+  page: encoding-is-hard
+  group: Quantization
+  color: enc
+icm:
+  term: ICM
+  aliases: [iterated conditional modes]
+  short: Iterated conditional modes. Re-optimise one codebook's choice exactly while holding the others fixed, and cycle until nothing changes.
+  page: icm-and-exact
+  group: Quantization
+  color: enc
+lsq:
+  term: LSQ
+  aliases: [LSQ++]
+  short: Local search quantization. Additive codebooks encoded with ICM plus random perturbations to escape local minima.
+  page: icm-and-exact
+  group: Quantization
+  color: enc
+ilp:
+  term: ILP
+  aliases: [integer linear program]
+  short: Integer linear program. An exact formulation of the encoding problem; a measuring stick, not a production encoder.
+  page: icm-and-exact
+  group: Quantization
+fastscan:
+  term: fast-scan
+  aliases: [FastScan]
+  short: 4-bit codes whose lookup tables fit in a SIMD register, so one shuffle instruction performs 16 or 32 lookups at once.
+  page: searching-codes
+  group: Quantization
+qinco:
+  term: QINCo
+  aliases: [QINCo2]
+  short: Residual quantization where a small neural network generates each stage's codebook from the reconstruction so far.
+  page: bells-and-whistles
+  group: Quantization
+pca:
+  term: PCA
+  aliases: [SVD, principal component analysis, principal directions]
+  short: Rotate the axes so that the first one carries the most variance, the second the most of what remains, and so on. Computed with an SVD.
+  page: know-your-data
+  group: Quantization
+  color: enc
+spectrum:
+  term: eigenvalue spectrum
+  aliases: [spectrum]
+  short: The variance along each principal direction, sorted from largest to smallest. It says where the information is.
+  page: know-your-data
+  group: Quantization
+  color: enc
+water-filling:
+  term: reverse water-filling
+  aliases: [water-filling]
+  short: "The optimal bit allocation for Gaussian data: direction i gets $\\tfrac12\\log_2(\\lambda_i/\\theta)$ bits, and directions below the water level $\\theta$ get none."
+  page: spectrum-and-bits
+  group: Quantization
+  color: bits
+transform-coding:
+  term: transform coding
+  short: Rotate into a basis where coordinates are uncorrelated, quantize each coordinate separately, then entropy-code. The JPEG recipe.
+  page: compression-stack
+  group: Quantization
+
+# ---------------------------------------------------------------- Information theory
+entropy:
+  term: entropy
+  short: $H = -\sum_x p(x)\log_2 p(x)$, the average number of bits per symbol that an ideal code needs when symbols follow $p$.
+  page: pdf-view
+  group: Information theory
+  color: bits
+cross-entropy:
+  term: cross-entropy
+  short: The bits you actually pay when the data follows $p$ but your coder assumes $q$. It equals the entropy plus the KL divergence.
+  page: pdf-view
+  group: Information theory
+  color: bits
+kl:
+  term: KL divergence
+  aliases: [KL]
+  short: $D(p\Vert q) = \sum p \log_2 (p/q)$. The extra bits per symbol paid for coding with the wrong model.
+  page: pdf-view
+  group: Information theory
+  color: bits
+differential-entropy:
+  term: differential entropy
+  short: Entropy for a continuous density, $h = -\int f \log_2 f$. Quantizing with step $\Delta$ costs about $h - \log_2 \Delta$ bits.
+  page: pdf-view
+  group: Information theory
+  color: bits
+rate-distortion:
+  term: rate–distortion
+  aliases: [rate-distortion]
+  short: The theory of the best possible trade between bits spent (rate) and error accepted (distortion).
+  page: spectrum-and-bits
+  group: Information theory
+  color: bits
+six-db:
+  term: 6 dB per bit
+  auto: false
+  short: Each extra bit per coordinate halves the quantization step and quarters the squared error (a factor of 4 is 6.02 dB).
+  page: scalar-quantization
+  group: Information theory
+entropy-coding:
+  term: entropy coding
+  aliases: [entropy coder, entropy-coded, entropy coders]
+  short: Storing each symbol in about $-\log_2 q$ bits, where $q$ is its probability under a model. Frequent symbols get short codes.
+  page: entropy-coders
+  group: Information theory
+  color: bits
+huffman:
+  term: Huffman coding
+  aliases: [Huffman]
+  short: The optimal code that spends a whole number of bits per symbol. It wastes up to one bit per symbol when probabilities are skewed.
+  page: entropy-coders
+  group: Information theory
+rice:
+  term: Golomb–Rice
+  aliases: [Rice codes, Golomb-Rice, Rice coding]
+  short: A one-parameter family of codes for geometrically distributed integers. No tables; the choice inside FLAC.
+  page: entropy-coders
+  group: Information theory
+arithmetic-coding:
+  term: arithmetic coding
+  aliases: [range coder, range coding]
+  short: Encodes a whole message as one number inside an interval that shrinks by each symbol's probability. Within a fraction of a bit of the model's cross-entropy.
+  page: entropy-coders
+  group: Information theory
+ans:
+  term: ANS
+  aliases: [rANS, tANS, asymmetric numeral systems]
+  short: Asymmetric numeral systems. Entropy coding with arithmetic-coding accuracy at close to Huffman speed. Used in zstd.
+  page: entropy-coders
+  group: Information theory
+  color: bits
+zstd:
+  term: zstd
+  aliases: [Zstandard]
+  short: A general-purpose compressor (repeated-string matching plus ANS). Great on text, weak on floats because it looks for repeated bytes.
+  page: floats-are-stubborn
+  group: Information theory
+byte-shuffle:
+  term: byte shuffle
+  aliases: [byte-shuffling, shuffle]
+  short: Regroup the bytes of an array of numbers so that all first bytes sit together, then all second bytes, and so on. It makes the predictable bytes compressible.
+  page: floats-are-stubborn
+  group: Information theory
+predictive-coding:
+  term: predictive coding
+  aliases: [DPCM, delta coding]
+  short: Guess the next value from what the decoder already has, and spend bits only on the prediction error.
+  page: prediction
+  group: Information theory
+  color: res
+prediction-gain:
+  term: prediction gain
+  short: The factor by which prediction shrinks the energy to be coded. For correlation $\rho$ it is $1/(1-\rho^2)$.
+  page: prediction
+  group: Information theory
+closed-loop:
+  term: closed-loop prediction
+  aliases: [closed loop, closed-loop]
+  short: Predict from the decoder's reconstruction, never from the original, so that encoder and decoder cannot drift apart.
+  page: prediction
+  group: Information theory
+keyframe:
+  term: keyframe
+  aliases: [keyframes]
+  short: A value coded without reference to its predecessors. It bounds error propagation and allows decoding to start in the middle.
+  page: prediction
+  group: Information theory
+two-part-code:
+  term: two-part code
+  aliases: [side information]
+  short: Describe the data as a model choice (side information) plus the data given that model. Lossless coding with a quantizer is exactly this.
+  page: bit-allocation
+  group: Information theory
+  color: bits
+mdl:
+  term: MDL
+  aliases: [minimum description length]
+  short: "Minimum description length: prefer the model for which model bits plus data-given-model bits is smallest."
+  page: bit-allocation
+  group: Information theory
+near-lossless:
+  term: near-lossless
+  short: Compression that guarantees every value comes back within $\pm\epsilon$ of the original.
+  page: two-codecs
+  group: Information theory
+coding-gain:
+  term: coding gain
+  aliases: [transform coding gain]
+  short: The bits saved by decorrelating before coding. For Gaussian data it is half the log of the ratio between the arithmetic and geometric mean of the variances.
+  page: transforms
+  group: Information theory
+
+# ---------------------------------------------------------------- Systems
+rag:
+  term: RAG
+  aliases: [retrieval-augmented generation]
+  short: Retrieval-augmented generation. Retrieve relevant chunks with vector search and paste them into the LLM's prompt.
+  page: in-practice
+  group: Systems
+hybrid-search:
+  term: hybrid search
+  short: Running keyword search and vector search side by side and merging the two ranked lists.
+  page: in-practice
+  group: Systems
+two-tower:
+  term: two-tower
+  aliases: [two-tower model]
+  short: A recommender that scores user·item with one network per side, so item vectors can be precomputed and indexed.
+  page: the-funnel
+  group: Systems
+dlrm:
+  term: DLRM
+  short: Meta's deep learning recommendation model. The heavy ranking stage that scores a few thousand candidates after retrieval.
+  page: the-funnel
+  group: Systems
+semantic-ids:
+  term: semantic IDs
+  aliases: [semantic ID, generative retrieval]
+  short: Short code sequences from residual quantization of item embeddings, used as a vocabulary a transformer can generate.
+  page: the-funnel
+  group: Systems
+kv-cache:
+  term: KV cache
+  short: The stored keys and values of earlier tokens that attention looks up at every step. An LLM's built-in vector datastore.
+  page: rhymes
+  group: Systems
+vector-db:
+  term: vector database
+  aliases: [vector databases, vector DB, vector DBs]
+  short: A service that wraps ANN indexes in storage, an API, metadata filtering, replication and scaling.
+  page: in-practice
+  group: Systems

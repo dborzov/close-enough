@@ -1,0 +1,16 @@
+<svg viewBox="0 0 960 230" role="img" aria-label="Recommendation funnel from billions of items through retrieval, ranking and re-ranking to about twenty shown items">
+        <polygon points="10,10 230,30 230,200 10,220" style="fill:color-mix(in srgb,var(--muted) 18%,transparent);stroke:var(--rule)"/>
+        <polygon points="250,35 470,60 470,170 250,195" style="fill:color-mix(in srgb,var(--k-vec) 22%,transparent);stroke:var(--k-vec)"/>
+        <polygon points="490,65 710,82 710,148 490,165" style="fill:color-mix(in srgb,var(--k-book) 22%,transparent);stroke:var(--k-book)"/>
+        <polygon points="730,88 950,98 950,132 730,142" style="fill:color-mix(in srgb,var(--k-dec) 22%,transparent);stroke:var(--k-dec)"/>
+        <text class="sv-big" x="120" y="112" text-anchor="middle">10⁹–10¹⁰</text>
+        <text class="sv-s" x="120" y="134" text-anchor="middle">all items</text>
+        <text class="sv-big" x="360" y="112" text-anchor="middle">10³–10⁴</text>
+        <text class="sv-s" x="360" y="134" text-anchor="middle">candidates</text>
+        <text class="sv-big" x="600" y="114" text-anchor="middle">10²–10³</text>
+        <text class="sv-s" x="600" y="134" text-anchor="middle">ranked</text>
+        <text class="sv-big" x="840" y="122" text-anchor="middle" style="font-size:18px">~10–50</text>
+        <text class="sv-m" x="360" y="24" text-anchor="middle">RETRIEVAL · ANN lives here</text>
+        <text class="sv-m" x="600" y="56" text-anchor="middle">RANKING · DLRM lives here</text>
+        <text class="sv-m" x="840" y="82" text-anchor="middle">RE-RANK · rules</text>
+      </svg>

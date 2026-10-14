@@ -1,0 +1,30 @@
+<svg class="dia" viewBox="0 0 900 250" role="img" aria-label="Interaction graphs: PQ has no edges, RQ processes a full graph greedily, tree quantization has a tree, additive quantization is fully connected.">
+    <g transform="translate(20,20)">
+      <text x="90" y="14" text-anchor="middle" class="t-big">PQ</text>
+      <g style="fill:var(--bg-3);stroke:var(--k-book);stroke-width:2.5"><circle cx="50" cy="70" r="16"/><circle cx="130" cy="70" r="16"/><circle cx="50" cy="150" r="16"/><circle cx="130" cy="150" r="16"/></g>
+      <text x="90" y="200" text-anchor="middle">no edges:</text><text x="90" y="216" text-anchor="middle">solve each node alone</text>
+      <text x="90" y="238" text-anchor="middle" style="fill:var(--k-dec)">exact, cheap</text>
+    </g>
+    <g transform="translate(245,20)">
+      <text x="90" y="14" text-anchor="middle" class="t-big">RQ, greedy</text>
+      <g style="stroke:var(--k-enc);stroke-width:1.6;fill:none;stroke-dasharray:4 4"><path d="M50 70 L130 70"/><path d="M50 70 L50 150"/><path d="M50 70 L130 150"/><path d="M130 70 L50 150"/><path d="M130 70 L130 150"/><path d="M50 150 L130 150"/></g>
+      <g style="fill:var(--bg-3);stroke:var(--k-book);stroke-width:2.5"><circle cx="50" cy="70" r="16"/><circle cx="130" cy="70" r="16"/><circle cx="50" cy="150" r="16"/><circle cx="130" cy="150" r="16"/></g>
+      <g><text x="50" y="74" text-anchor="middle" class="t-ink">1</text><text x="130" y="74" text-anchor="middle" class="t-ink">2</text><text x="50" y="154" text-anchor="middle" class="t-ink">3</text><text x="130" y="154" text-anchor="middle" class="t-ink">4</text></g>
+      <text x="90" y="200" text-anchor="middle">all edges, decided 1→4</text><text x="90" y="216" text-anchor="middle">ignoring edges to the future</text>
+      <text x="90" y="238" text-anchor="middle" style="fill:var(--k-enc)">cheap, suboptimal</text>
+    </g>
+    <g transform="translate(470,20)">
+      <text x="90" y="14" text-anchor="middle" class="t-big">Tree quantization</text>
+      <g style="stroke:var(--k-enc);stroke-width:2.5"><path d="M90 60 L45 120"/><path d="M90 60 L135 120"/><path d="M45 120 L45 175"/></g>
+      <g style="fill:var(--bg-3);stroke:var(--k-book);stroke-width:2.5"><circle cx="90" cy="60" r="16"/><circle cx="45" cy="120" r="16"/><circle cx="135" cy="120" r="16"/><circle cx="45" cy="175" r="16"/></g>
+      <text x="90" y="216" text-anchor="middle">tree: dynamic programming</text>
+      <text x="90" y="238" text-anchor="middle" style="fill:var(--k-dec)">exact, O(M·K²)</text>
+    </g>
+    <g transform="translate(695,20)">
+      <text x="90" y="14" text-anchor="middle" class="t-big">Additive (AQ)</text>
+      <g style="stroke:var(--k-enc);stroke-width:2.5"><path d="M50 70 L130 70"/><path d="M50 70 L50 150"/><path d="M50 70 L130 150"/><path d="M130 70 L50 150"/><path d="M130 70 L130 150"/><path d="M50 150 L130 150"/></g>
+      <g style="fill:var(--bg-3);stroke:var(--k-book);stroke-width:2.5"><circle cx="50" cy="70" r="16"/><circle cx="130" cy="70" r="16"/><circle cx="50" cy="150" r="16"/><circle cx="130" cy="150" r="16"/></g>
+      <text x="90" y="200" text-anchor="middle">fully connected:</text><text x="90" y="216" text-anchor="middle">NP-hard in general</text>
+      <text x="90" y="238" text-anchor="middle" style="fill:var(--k-res)">needs real search</text>
+    </g>
+  </svg>

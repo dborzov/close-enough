@@ -1,0 +1,25 @@
+<svg class="dia" viewBox="0 0 900 220" role="img" aria-label="Encode once, decode or compare on every query.">
+    <rect class="box" x="10" y="60" width="180" height="90" rx="10"/>
+    <text x="100" y="92" text-anchor="middle" class="t-big" style="fill:var(--k-vec)">x ∈ ℝ³⁸⁴</text>
+    <text x="100" y="116" text-anchor="middle">384 × float32</text>
+    <text x="100" y="134" text-anchor="middle">1,536 bytes</text>
+    <path class="ln" d="M190 105 H 290" marker-end="url(#ah)"/>
+    <text x="240" y="94" text-anchor="middle" class="t-hand" style="fill:var(--k-enc)">encode</text>
+    <text x="240" y="128" text-anchor="middle">once per vector</text>
+    <rect class="box" x="290" y="60" width="270" height="90" rx="10" style="stroke:var(--k-code);stroke-width:2"/>
+    <text x="425" y="88" text-anchor="middle" class="t-big" style="fill:var(--k-code)">code</text>
+    <g font-size="13" style="fill:var(--k-code)">
+      <text x="312" y="120" style="fill:var(--k-code)">17 203 4 88 131 9 250 66 …</text>
+    </g>
+    <text x="425" y="140" text-anchor="middle">M small integers → ~16 bytes</text>
+    <path class="ln" d="M560 88 H 680" marker-end="url(#ah)"/>
+    <text x="620" y="78" text-anchor="middle" class="t-hand" style="fill:var(--k-dec)">decode</text>
+    <rect class="box" x="680" y="40" width="210" height="70" rx="10"/>
+    <text x="785" y="72" text-anchor="middle" class="t-big" style="fill:var(--k-dec)">x̂ ≈ x</text>
+    <text x="785" y="94" text-anchor="middle">reconstruction</text>
+    <path class="ln" d="M560 125 C 610 125, 620 175, 680 175" marker-end="url(#ah)"/>
+    <text x="606" y="196" text-anchor="middle" class="t-hand" style="fill:var(--k-q)">compare</text>
+    <rect class="box" x="680" y="140" width="210" height="70" rx="10"/>
+    <text x="785" y="170" text-anchor="middle" class="t-big" style="fill:var(--k-q)">score(q, x̂)</text>
+    <text x="785" y="192" text-anchor="middle">every query, often no decode</text>
+  </svg>

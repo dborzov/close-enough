@@ -1,0 +1,52 @@
+title: Close Enough
+subtitle: A visual primer on embeddings, vector search, and the mathematics of compressing vectors
+author: Dima Borzov
+glossary_groups: [Embeddings, Search, Hashing, Quantization, Information theory, Systems]
+
+# Reading order. Each slug is content/<slug>.md. "color" is a concept-colour token from theme/css/base.css.
+parts:
+  - title: Start here
+    color: k-vec
+    pages: [index]
+
+  - n: 1
+    title: Vectors with meaning
+    color: k-vec
+    blurb: Where embeddings come from, what their geometry means, and what "close" measures.
+    pages: [map, meaning-from-context, contextual-embeddings, contrastive-training, geometry-of-embeddings, closeness, timeline]
+
+  - n: 2
+    title: Finding neighbours fast
+    color: k-q
+    blurb: Why exact search stops scaling, and the four families of indexes that trade a little recall for a lot of speed.
+    pages: [nearest-neighbour-problem, partitioning, graphs, index-lab, napkin-math]
+
+  - n: 3
+    title: "Compression: the stack"
+    color: k-enc
+    blurb: Transform, quantize, predict, entropy-code. One running example, real vectors, and the spectrum that decides where bits go.
+    pages: [compression-stack, marginalia, know-your-data, spectrum-and-bits, scalar-quantization]
+
+  - n: 4
+    title: Codebooks
+    color: k-book
+    blurb: Vector quantization from one codebook to sums of codebooks, why encoding becomes the hard part, and what it all measures on real data.
+    pages: [one-codebook, sum-trick, residual-quantization, encoding-is-hard, icm-and-exact, learning-codebooks, searching-codes, measured, bells-and-whistles]
+
+  - n: 5
+    title: "Hashing: LSH in depth"
+    color: k-code
+    blurb: Random hyperplanes as an index and as a compressor. The collision probability, the S-curve, and where hashing wins and loses.
+    pages: [lsh-idea, lsh-amplification, lsh-in-practice, bits-as-sketches]
+
+  - n: 6
+    title: Building a lossless codec
+    color: k-bits
+    blurb: A deeper look at exact compression of embeddings for archives and for the wire. Everything is a probability model.
+    pages: [codec-big-picture, pdf-view, floats-are-stubborn, transforms, prediction, entropy-coders, bit-allocation, code-entropy, two-codecs]
+
+  - n: 7
+    title: Systems and rhymes
+    color: k-dec
+    blurb: How products assemble these pieces, and where the same math reappears inside transformers.
+    pages: [in-practice, the-funnel, rhymes, big-picture, recap]

@@ -1,0 +1,61 @@
+<svg viewBox="0 0 960 270" role="img" aria-label="Pipeline from text to tokens to lookup table to transformer layers to hidden states to pooling to embedding vector">
+        <defs><marker id="ah-embed-pipeline" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--muted)"/></marker></defs>
+        <g>
+          <rect class="sv-box" x="8" y="50" width="108" height="70" rx="8"/>
+          <text class="sv-t" x="62" y="80" text-anchor="middle">text</text>
+          <text class="sv-s" x="62" y="99" text-anchor="middle">"river bank"</text>
+
+          <rect class="sv-box" x="140" y="50" width="108" height="70" rx="8"/>
+          <text class="sv-t" x="194" y="80" text-anchor="middle">token ids</text>
+          <text class="sv-m" x="194" y="99" text-anchor="middle">[8613, 4314]</text>
+
+          <rect class="sv-box hl1" x="272" y="50" width="124" height="70" rx="8"/>
+          <text class="sv-t" x="334" y="80" text-anchor="middle">lookup table</text>
+          <text class="sv-m" x="334" y="99" text-anchor="middle">vocab × d</text>
+
+          <rect class="sv-box" x="420" y="38" width="150" height="94" rx="8"/>
+          <rect class="sv-box" x="428" y="46" width="134" height="18" rx="4"/>
+          <rect class="sv-box" x="428" y="70" width="134" height="18" rx="4"/>
+          <rect class="sv-box" x="428" y="94" width="134" height="18" rx="4"/>
+          <text class="sv-m" x="495" y="59" text-anchor="middle">attention + MLP</text>
+          <text class="sv-m" x="495" y="83" text-anchor="middle">attention + MLP</text>
+          <text class="sv-m" x="495" y="107" text-anchor="middle">… × N layers</text>
+          <text class="sv-s" x="495" y="126" text-anchor="middle">transformer</text>
+
+          <rect class="sv-box" x="594" y="50" width="120" height="70" rx="8"/>
+          <text class="sv-t" x="654" y="80" text-anchor="middle">hidden states</text>
+          <text class="sv-s" x="654" y="99" text-anchor="middle">one per token</text>
+
+          <rect class="sv-box" x="738" y="50" width="96" height="70" rx="8"/>
+          <text class="sv-t" x="786" y="80" text-anchor="middle">pool</text>
+          <text class="sv-s" x="786" y="99" text-anchor="middle">+ normalize</text>
+
+          <rect class="sv-box hl2" x="858" y="50" width="94" height="70" rx="8"/>
+          <text class="sv-t" x="905" y="80" text-anchor="middle">embedding</text>
+          <text class="sv-m" x="905" y="99" text-anchor="middle">768 floats</text>
+
+          <path class="sv-line" d="M116 85 H136" marker-end="url(#ah-embed-pipeline)"/>
+          <path class="sv-line" d="M248 85 H268" marker-end="url(#ah-embed-pipeline)"/>
+          <path class="sv-line" d="M396 85 H416" marker-end="url(#ah-embed-pipeline)"/>
+          <path class="sv-line" d="M570 85 H590" marker-end="url(#ah-embed-pipeline)"/>
+          <path class="sv-line" d="M714 85 H734" marker-end="url(#ah-embed-pipeline)"/>
+          <path class="sv-line" d="M834 85 H854" marker-end="url(#ah-embed-pipeline)"/>
+
+          <path class="sv-line sv-stroke-c" d="M334 124 V160"/>
+          <text class="sv-s" x="334" y="178" text-anchor="middle" style="fill:var(--k-book)">word2vec-era vectors live here:</text>
+          <text class="sv-s" x="334" y="194" text-anchor="middle">one fixed row per token,</text>
+          <text class="sv-s" x="334" y="210" text-anchor="middle">no context. Not used for search.</text>
+
+          <path class="sv-line" d="M654 124 V160"/>
+          <text class="sv-s" x="654" y="178" text-anchor="middle">contextual: "bank" here differs</text>
+          <text class="sv-s" x="654" y="194" text-anchor="middle">from "bank" in "bank account"</text>
+
+          <path class="sv-line sv-stroke-a" d="M905 124 V160"/>
+          <text class="sv-s" x="905" y="178" text-anchor="middle" style="fill:var(--k-vec)">what an embedding</text>
+          <text class="sv-s" x="905" y="194" text-anchor="middle" style="fill:var(--k-vec)">API returns</text>
+
+          <path class="sv-line" d="M272 18 H714" style="stroke-dasharray:3 4"/>
+          <text class="sv-m" x="493" y="14" text-anchor="middle">pretrained backbone (an LLM or a BERT-style encoder)</text>
+          <text class="sv-s" x="480" y="252" text-anchor="middle">Then the whole stack is fine-tuned contrastively so the final vectors are good for "is this relevant to that?"</text>
+        </g>
+      </svg>

@@ -1,0 +1,22 @@
+<svg viewBox="0 0 720 250" role="img" aria-label="Contrastive training: anchor pulls its positive closer and pushes negatives away">
+        <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--k-dec)"/></marker>
+        <marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--k-res)"/></marker></defs>
+        <circle class="sv-a" cx="300" cy="125" r="9"/>
+        <text class="sv-t" x="300" y="105" text-anchor="middle">query: "how do I reset my router"</text>
+        <circle class="sv-te" cx="430" cy="150" r="8"/>
+        <text class="sv-s" x="430" y="176" text-anchor="middle" style="fill:var(--k-dec)">positive: "restarting your wifi modem"</text>
+        <path d="M420 147 Q 370 140 318 130" style="stroke:var(--k-dec);stroke-width:2;fill:none" marker-end="url(#ah2)"/>
+        <text class="sv-m" x="372" y="127" text-anchor="middle">pull</text>
+        <circle class="sv-r" cx="150" cy="70" r="7"/>
+        <text class="sv-s" x="150" y="52" text-anchor="middle">hard negative: "router bits for woodworking"</text>
+        <path d="M285 117 L170 80" style="stroke:var(--k-res);stroke-width:1.6;fill:none;stroke-dasharray:4 3"/>
+        <path d="M150 70 L95 50" style="stroke:var(--k-res);stroke-width:2;fill:none" marker-end="url(#ah3)"/>
+        <circle class="sv-r" cx="160" cy="200" r="7"/>
+        <text class="sv-s" x="160" y="226" text-anchor="middle">"banana bread recipe"</text>
+        <path d="M160 200 L105 225" style="stroke:var(--k-res);stroke-width:2;fill:none" marker-end="url(#ah3)"/>
+        <circle class="sv-r" cx="560" cy="70" r="7"/>
+        <text class="sv-s" x="590" y="52" text-anchor="middle">"quarterly earnings call"</text>
+        <path d="M560 70 L620 40" style="stroke:var(--k-res);stroke-width:2;fill:none" marker-end="url(#ah3)"/>
+        <text class="sv-s" x="600" y="210" text-anchor="middle">every other item in the batch</text>
+        <text class="sv-s" x="600" y="226" text-anchor="middle">is a free negative</text>
+      </svg>

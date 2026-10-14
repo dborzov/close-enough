@@ -1,0 +1,50 @@
+<svg class="dia" viewBox="0 0 940 330" role="img" aria-label="A lossless codec: a model turns context into a prediction and a spread; the difference between the value and the prediction is entropy coded; the decoder runs the same model and adds the difference back.">
+  <defs><marker id="ah-cp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--faint)"/></marker></defs>
+  <text x="20" y="24" class="t-big">encoder</text>
+  <rect class="box" x="20" y="40" width="150" height="64" rx="10"/>
+  <text x="95" y="66" text-anchor="middle" class="t-big" style="fill:var(--k-vec)">value x</text>
+  <text x="95" y="88" text-anchor="middle">an exact integer</text>
+  <rect class="box" x="20" y="130" width="150" height="64" rx="10" style="stroke:var(--k-q)"/>
+  <text x="95" y="156" text-anchor="middle" class="t-big" style="fill:var(--k-q)">context</text>
+  <text x="95" y="178" text-anchor="middle">what the decoder has</text>
+  <path class="ln" d="M170 162 H 250" marker-end="url(#ah-cp)"/>
+  <rect class="box" x="250" y="122" width="190" height="80" rx="10" style="stroke:var(--k-res);stroke-width:2"/>
+  <text x="345" y="150" text-anchor="middle" class="t-big" style="fill:var(--k-res)">model</text>
+  <text x="345" y="172" text-anchor="middle">a guess μ and a spread σ</text>
+  <text x="345" y="190" text-anchor="middle">= a distribution q(x | context)</text>
+  <path class="ln" d="M170 72 H 500" marker-end="url(#ah-cp)"/>
+  <path class="ln" d="M440 150 C 480 150, 500 130, 512 92" marker-end="url(#ah-cp)"/>
+  <circle cx="516" cy="72" r="16" class="box" style="stroke:var(--k-res)"/>
+  <text x="516" y="77" text-anchor="middle" class="t-big" style="fill:var(--k-res)">−</text>
+  <text x="474" y="118" class="t-hand" style="fill:var(--k-res)">round(μ)</text>
+  <path class="ln" d="M532 72 H 610" marker-end="url(#ah-cp)"/>
+  <text x="571" y="62" text-anchor="middle">r</text>
+  <rect class="box" x="610" y="40" width="180" height="64" rx="10" style="stroke:var(--k-bits);stroke-width:2"/>
+  <text x="700" y="66" text-anchor="middle" class="t-big" style="fill:var(--k-bits)">entropy coder</text>
+  <text x="700" y="88" text-anchor="middle">about −log₂ q(r) bits</text>
+  <path class="ln" d="M440 176 C 600 176, 680 150, 696 108" marker-end="url(#ah-cp)"/>
+  <text x="610" y="160" class="t-hand" style="fill:var(--k-bits)">σ sets the code lengths</text>
+  <path class="ln" d="M790 72 H 850" marker-end="url(#ah-cp)"/>
+  <rect class="box" x="850" y="46" width="76" height="52" rx="10" style="stroke:var(--k-code);stroke-width:2"/>
+  <text x="888" y="78" text-anchor="middle" class="t-big" style="fill:var(--k-code)">bits</text>
+  <line x1="20" y1="226" x2="926" y2="226" style="stroke:var(--rule);stroke-dasharray:4 5"/>
+  <text x="20" y="252" class="t-big">decoder</text>
+  <rect class="box" x="250" y="262" width="190" height="52" rx="10" style="stroke:var(--k-res)"/>
+  <text x="345" y="286" text-anchor="middle" class="t-ink">the same model,</text>
+  <text x="345" y="303" text-anchor="middle">the same context → μ, σ</text>
+  <rect class="box" x="610" y="262" width="180" height="52" rx="10" style="stroke:var(--k-bits)"/>
+  <text x="700" y="286" text-anchor="middle" class="t-ink">entropy decoder</text>
+  <text x="700" y="303" text-anchor="middle">bits → r</text>
+  <path class="ln" d="M850 288 H 794" marker-end="url(#ah-cp)"/>
+  <text x="888" y="292" text-anchor="middle" style="fill:var(--k-code)">bits</text>
+  <path class="ln" d="M440 300 C 520 300, 560 300, 606 300" marker-end="url(#ah-cp)"/>
+  <text x="525" y="318" text-anchor="middle">σ</text>
+  <path class="ln" d="M610 276 H 520" marker-end="url(#ah-cp)"/>
+  <circle cx="504" cy="276" r="14" class="box" style="stroke:var(--k-dec)"/>
+  <text x="504" y="281" text-anchor="middle" class="t-big" style="fill:var(--k-dec)">+</text>
+  <path class="ln" d="M440 276 H 486" marker-end="url(#ah-cp)"/>
+  <path class="ln" d="M504 262 V 244 H 180" marker-end="url(#ah-cp)"/>
+  <text x="120" y="248" text-anchor="middle" class="t-big" style="fill:var(--k-dec)">x, exactly</text>
+  <text x="120" y="290" text-anchor="middle" class="t-hand" style="fill:var(--k-q)">and x joins the context</text>
+  <text x="120" y="308" text-anchor="middle" class="t-hand" style="fill:var(--k-q)">for the next value</text>
+</svg>

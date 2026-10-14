@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" data-slug="{{slug}}" data-layout="{{layout}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>{{title}} · {{book}}</title>
+<meta name="description" content="{{desc}}">
+<meta property="og:title" content="{{title}} · {{book}}">
+<meta property="og:description" content="{{desc}}">
+<meta property="og:type" content="article">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<script>
+/* Set the theme before first paint so there is no flash. */
+(function () { try { var t = JSON.parse(localStorage.getItem('ce:v1') || '{}').theme; if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {} })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;700&display=swap">
+<link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/nav.css">
+<script defer src="assets/book.js"></script>
+<script defer src="assets/js/app.js"></script>
+{{scripts}}
+</head>
+<body style="--pc: var(--{{color}})">
+<a class="skip" href="#content">Skip to content</a>
+
+<header id="topbar">
+  <div id="readbar" aria-hidden="true"><i></i></div>
+  <div class="bar">
+    <a class="brand" href="index.html" title="Cover"><span class="logo" aria-hidden="true"></span><span class="bt">{{book}}</span></a>
+    <button id="toc-btn" class="crumb" aria-haspopup="dialog" aria-expanded="false" aria-controls="toc" title="Contents (press t)">
+      <span class="cn">{{num}}</span><span class="ct">{{title}}</span><span class="cs" id="crumb-sec"></span><span class="caret" aria-hidden="true">▾</span>
+    </button>
+    <span class="spacer"></span>
+    <a id="ring" href="index.html#progress" title="Your progress through the book"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="tr"/><circle cx="18" cy="18" r="15" class="fg" pathLength="100" stroke-dasharray="0 100"/></svg><span id="ring-t">0%</span></a>
+    <a class="tb" href="glossary.html" title="Glossary (press g)">Aa<span class="tl">Glossary</span></a>
+    <button class="tb" id="theme-btn" title="Switch light / dark" aria-label="Switch light or dark theme"><span id="theme-ico">◐</span></button>
+  </div>
+</header>
+
+<div id="toc" role="dialog" aria-modal="true" aria-label="Table of contents" hidden>
+  <div class="toc-in">
+    <div class="toc-head">
+      <input id="toc-q" type="search" placeholder="Jump to a page, section or term…" aria-label="Search contents" autocomplete="off">
+      <span class="toc-prog" id="toc-prog"></span>
+      <button id="toc-close" class="tb" aria-label="Close contents">Esc ✕</button>
+    </div>
+    <div class="toc-body" id="toc-body"></div>
+    <div class="toc-foot"><span><kbd>←</kbd><kbd>→</kbd> previous / next page</span><span><kbd>t</kbd> contents</span><span><kbd>g</kbd> glossary</span><span><kbd>/</kbd> search</span><button id="reset-prog" class="linkish">Reset reading progress</button></div>
+  </div>
+</div>
+
+<div class="shell">
+  <nav id="rail" aria-label="This part">
+    <div class="rail-in">
+      <a class="rail-part" href="index.html#part-{{part_n}}"><span class="pn">{{part_label}}</span>{{part_title}}</a>
+      <ol id="rail-pages"></ol>
+    </div>
+  </nav>
+
+  <main id="content">
+    <article class="page">
+      <header class="ch-head">
+        <div class="strip" aria-hidden="true">{{strip}}</div>
+        <div class="ch-row">
+          <div class="ch-num">{{num}}</div>
+          <div>
+            <span class="label ch-kicker">{{kicker}}</span>
+            <h1>{{title}}</h1>
+          </div>
+        </div>
+        <p class="ch-goal">{{goal}}</p>
+        <div class="ch-meta"><span>~{{minutes}} min</span><span id="meta-fig" data-n="{{nfig}}"></span><span id="meta-state"></span></div>
+      </header>
+      <div class="prose">
+{{body}}
+      </div>
+      <footer class="page-foot">
+        <div class="done-row"><button id="done-btn" class="donebtn" aria-pressed="false"><span class="tick">✓</span><span class="dl">Mark as read</span></button></div>
+        <nav class="pager" aria-label="Previous and next page">{{prev}}{{next}}</nav>
+      </footer>
+    </article>
+  </main>
+</div>
+
+<div id="pop" role="tooltip" hidden></div>
+<div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
